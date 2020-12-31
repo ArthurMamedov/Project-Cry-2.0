@@ -23,5 +23,7 @@ public:
 
 	virtual auto reset() -> void = 0;
 
+	virtual auto set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox) -> void = 0;
+
 	virtual ~ICryptor() = default;
 };
