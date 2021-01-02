@@ -139,13 +139,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="aes_cryptor.cpp" />
+    <ClCompile Include="aes_core.cpp" />
+    <ClCompile Include="cryptors.cpp" />
     <ClCompile Include="file_cryptor.cpp" />
+    <ClCompile Include="gost_core.cpp" />
+    <ClCompile Include="ICryptor.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="aes_cryptor.hpp" />
+    <ClInclude Include="aes_core.hpp" />
+    <ClInclude Include="cryptors.hpp" />
     <ClInclude Include="file_cryptor.hpp" />
+    <ClInclude Include="gost_core.hpp" />
     <ClInclude Include="ICryptor.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

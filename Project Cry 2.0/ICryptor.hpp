@@ -1,29 +1,26 @@
 #pragma once
+#include <memory>
 #include <cstdint>
 
-class ICryptor {
+class ICore {
 public:
-	/// <summary>
-	/// Sets the key for encryption algorithm.
-	/// </summary>
-	/// <param name="key"> - encryption/decryption key.</param>
-	virtual auto set_key(const char* key) -> void = 0;
+	virtual auto cry_round(uint8_t* block)										-> void = 0;
+	virtual auto inv_cry_round(uint8_t* block)									-> void = 0;
+	virtual auto set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox)	-> void = 0;
+	virtual auto set_key(const char* key)										-> void = 0;
+	virtual auto get_block_length()												-> size_t = 0;
+	virtual ~ICore() = default;
+};
 
-	/// <summary>
-	/// Encrypts the block of data.
-	/// </summary>
-	/// <param name="block">- the block of raw data.</param>
-	virtual auto encrypt(uint8_t* block) -> void = 0;
-
-	/// <summary>
-	/// Decrypts the block of encrypted data.
-	/// </summary>
-	/// <param name="block">- block of ecnrypted data.</param>
-	virtual auto decrypt(uint8_t* block) -> void = 0;
-
-	virtual auto reset() -> void = 0;
-
-	virtual auto set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox) -> void = 0;
+class ICryptor {
+protected:
+	std::unique_ptr<ICore> _algo;
+	auto xor_blocks(uint8_t* block1, const uint8_t* block2)						-> void;
+public:
+	virtual auto encrypt(uint8_t* block)										-> void = 0;
+	virtual auto decrypt(uint8_t* block)										-> void = 0;
+	virtual auto get_block_length()												-> size_t;
+	virtual auto reset()														-> void = 0;
 
 	virtual ~ICryptor() = default;
 };

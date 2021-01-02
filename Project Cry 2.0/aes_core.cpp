@@ -1,11 +1,9 @@
 #include <stdexcept>
-#include <cstring>
-#include "aes_cryptor.hpp"
+#include "aes_core.hpp"
 
 #define AES_EXT_KEY_LENGTH	176
 #define AES_BLOCK_LENGTH	16
 
-#pragma region AesCore
 inline auto AesCore::_mul(uint8_t first, uint8_t second) -> uint8_t {
 	uint8_t r = 0;
 	for (int c = 7; c >= 0; c--) {
@@ -162,7 +160,28 @@ inline auto AesCore::_inv_shift_rows(uint8_t* state) -> void {
 	_shift(12, state);
 }
 
-inline auto AesCore::_cry_round(uint8_t* block) -> void {
+AesCore::AesCore(const char* key) {
+	if (std::strlen(key) != 16) {
+		throw std::runtime_error("Key length for AES must be 16 bytes.");
+	}
+	_split_key(key);
+}
+
+AesCore::AesCore(const AesCore& aesCore) {
+	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
+		_first[c] = aesCore._first[c];
+		_last[c] = aesCore._last[c];
+		for (size_t p = 0; p < AES_BLOCK_LENGTH && c < 9; p++) {
+			_middle[c][p] = aesCore._middle[c][p];
+		}
+		for (size_t p = 0; p < AES_BLOCK_LENGTH; p++) {
+			_sbox[c][p] = aesCore._sbox[c][p];
+			_inv_sbox[c][p] = aesCore._inv_sbox[c][p];
+		}
+	}
+}
+
+inline auto AesCore::cry_round(uint8_t* block) -> void {
 	_xor_blocks(block, _first);
 	for (size_t k = 0; k < 9; k++) {
 		_sub_bytes(block);
@@ -175,7 +194,7 @@ inline auto AesCore::_cry_round(uint8_t* block) -> void {
 	_xor_blocks(block, _last);
 }
 
-inline auto AesCore::_inv_cry_round(uint8_t* block) -> void {
+inline auto AesCore::inv_cry_round(uint8_t* block) -> void {
 	_xor_blocks(block, _last);
 	_inv_shift_rows(block);
 	_inv_sub_bytes(block);
@@ -193,7 +212,6 @@ auto AesCore::set_key(const char* key) -> void {
 		throw std::runtime_error("Key length for AES must be 16 bytes.");
 	}
 	_split_key(key);
-	_is_ready = true;
 }
 
 auto AesCore::set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox) -> void {
@@ -203,6 +221,10 @@ auto AesCore::set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox) -> voi
 			_inv_sbox[c][p] = inv_sbox[c][p];
 		}
 	}
+}
+
+auto AesCore::get_block_length() -> size_t {
+	return 16;
 }
 
 AesCore::~AesCore() {
@@ -218,199 +240,3 @@ AesCore::~AesCore() {
 		}
 	}
 }
-#pragma endregion // AesCore
-
-#pragma region AesEcbCryptor
-AesEcbCryptor::AesEcbCryptor() {
-	_is_ready = false;
-}
-
-AesEcbCryptor::AesEcbCryptor(const char* key) {
-	if (std::strlen(key) != 16) {
-		throw std::runtime_error("Key length for AES must be 16 bytes.");
-	}
-	_split_key(key);
-	_is_ready = true;
-}
-
-AesEcbCryptor::AesEcbCryptor(const AesEcbCryptor& aesEcbCryptor) {
-	_is_ready = aesEcbCryptor._is_ready;
-	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
-		_first[c] = aesEcbCryptor._first[c];
-		_last[c] = aesEcbCryptor._last[c];
-		for (size_t p = 0; p < AES_BLOCK_LENGTH && c < 9; p++) {
-			_middle[c][p] = aesEcbCryptor._middle[c][p];
-		}
-		for (size_t p = 0; p < AES_BLOCK_LENGTH; p++) {
-			_sbox[c][p] = aesEcbCryptor._sbox[c][p];
-			_inv_sbox[c][p] = aesEcbCryptor._inv_sbox[c][p];
-		}
-	}
-}
-
-auto AesEcbCryptor::encrypt(uint8_t* block) -> void {
-	if (!_is_ready) {
-		throw std::runtime_error("There is no key to encrypt with.");
-	}
-	_cry_round(block);
-}
-
-auto AesEcbCryptor::decrypt(uint8_t* block) -> void {
-	if (!_is_ready) {
-		throw std::runtime_error("There is no key to decrypt with.");
-	}
-	_inv_cry_round(block);
-}
-
-auto AesEcbCryptor::reset() -> void {
-	return;
-}
-#pragma endregion //AesEcbCryptor
-
-#pragma region AesCbcCryptor
-AesCbcCryptor::AesCbcCryptor() {
-	_is_ready = false;
-}
-
-AesCbcCryptor::AesCbcCryptor(const char* key) {
-	if (std::strlen(key) != 16) {
-		throw std::runtime_error("Key length for AES must be 16 bytes.");
-	}
-	_split_key(key);
-	_is_ready = true;
-}
-
-AesCbcCryptor::AesCbcCryptor(const AesCbcCryptor& aesCbcCryptor) {
-	_is_ready = aesCbcCryptor._is_ready;
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(aesCbcCryptor._init_vec),
-				16);
-	std::memcpy(reinterpret_cast<void*>(_save_init_vec),
-				reinterpret_cast<const void*>(aesCbcCryptor._save_init_vec),
-				16);
-	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
-		_first[c] = aesCbcCryptor._first[c];
-		_last[c] = aesCbcCryptor._last[c];
-		for (size_t p = 0; p < AES_BLOCK_LENGTH && c < 9; p++) {
-			_middle[c][p] = aesCbcCryptor._middle[c][p];
-		}
-		for (size_t p = 0; p < AES_BLOCK_LENGTH; p++) {
-			_sbox[c][p] = aesCbcCryptor._sbox[c][p];
-			_inv_sbox[c][p] = aesCbcCryptor._inv_sbox[c][p];
-		}
-	}
-}
-
-auto AesCbcCryptor::encrypt(uint8_t* block) -> void {
-	if (!_is_ready) {
-		throw std::runtime_error("There is no key to encrypt with.");
-	}
-	_xor_blocks(block, _init_vec);
-	_cry_round(block);
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(block),
-				16);
-}
-
-auto AesCbcCryptor::decrypt(uint8_t* block) -> void {
-	if (!_is_ready) {
-		throw std::runtime_error("There is no key to decrypt with.");
-	}
-	uint8_t buf[16];
-	std::memcpy(reinterpret_cast<void*>(buf),
-				reinterpret_cast<const void*>(block),
-				16);
-	_inv_cry_round(block);
-	_xor_blocks(block, _init_vec);
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(buf),
-				AES_BLOCK_LENGTH);
-}
-
-auto AesCbcCryptor::reset() -> void {
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(_save_init_vec),
-				AES_BLOCK_LENGTH);
-}
-
-auto AesCbcCryptor::set_init_vec(uint8_t* init_vec) -> void {
-	std::memcpy(reinterpret_cast<void*>(_save_init_vec),
-				reinterpret_cast<const void*>(init_vec),
-				AES_BLOCK_LENGTH);
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(_save_init_vec),
-				AES_BLOCK_LENGTH);
-}
-#pragma endregion //AesCbcCryptor
-
-#pragma region AesCfbCryptor
-AesCfbCryptor::AesCfbCryptor() {
-	_is_ready = false;
-}
-
-AesCfbCryptor::AesCfbCryptor(const char* key) {
-	if (std::strlen(key) != 16) {
-		throw std::runtime_error("Key length for AES must be 16 bytes.");
-	}
-	_split_key(key);
-	_is_ready = true;
-}
-
-AesCfbCryptor::AesCfbCryptor(const AesCfbCryptor& aesCfbCryptor) {
-	_is_ready = aesCfbCryptor._is_ready;
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(aesCfbCryptor._init_vec),
-				16);
-	std::memcpy(reinterpret_cast<void*>(_save_init_vec),
-				reinterpret_cast<const void*>(aesCfbCryptor._save_init_vec),
-				16);
-	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
-		_first[c] = aesCfbCryptor._first[c];
-		_last[c] = aesCfbCryptor._last[c];
-		for (size_t p = 0; p < AES_BLOCK_LENGTH && c < 9; p++) {
-			_middle[c][p] = aesCfbCryptor._middle[c][p];
-		}
-		for (size_t p = 0; p < AES_BLOCK_LENGTH; p++) {
-			_sbox[c][p] = aesCfbCryptor._sbox[c][p];
-			_inv_sbox[c][p] = aesCfbCryptor._inv_sbox[c][p];
-		}
-	}
-}
-
-auto AesCfbCryptor::encrypt(uint8_t* block) -> void {
-	if (!_is_ready) {
-		throw std::runtime_error("There is no key to encrypt with.");
-	}
-	_cry_round(_init_vec);
-	_xor_blocks(block, _init_vec);
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(block),
-				AES_BLOCK_LENGTH);
-}
-
-auto AesCfbCryptor::decrypt(uint8_t* block) -> void {
-	if (!_is_ready) {
-		throw std::runtime_error("There is no key to encrypt with.");
-	}
-	uint8_t buf[AES_BLOCK_LENGTH];
-	memcpy(buf, block, AES_BLOCK_LENGTH);
-	_cry_round(_init_vec);
-	_xor_blocks(block, _init_vec);
-	memcpy(_init_vec, buf, AES_BLOCK_LENGTH);
-}
-
-auto AesCfbCryptor::reset() -> void {
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(_save_init_vec),
-				AES_BLOCK_LENGTH);
-}
-
-auto AesCfbCryptor::set_init_vec(uint8_t* init_vec) -> void {
-	std::memcpy(reinterpret_cast<void*>(_save_init_vec),
-				reinterpret_cast<const void*>(init_vec),
-				AES_BLOCK_LENGTH);
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(_save_init_vec),
-				AES_BLOCK_LENGTH);
-}
-#pragma endregion //AesCfbCryptor

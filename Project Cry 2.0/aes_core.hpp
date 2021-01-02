@@ -1,8 +1,7 @@
 #pragma once
-#include <cstdint>
 #include "ICryptor.hpp"
 
-class AesCore : public ICryptor {
+class AesCore final : public ICore {
 protected:
 	uint8_t	_first[16], _middle[9][16], _last[16];
 	uint8_t	_sbox[16][16] = {
@@ -41,95 +40,39 @@ protected:
 		{ 0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61 },
 		{ 0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d }
 	};
-	bool	_is_ready;
 
 	//Polynomial multiplication, needed for AES
-	inline auto _mul(uint8_t first, uint8_t second)					-> uint8_t;
-	inline auto _mod(uint16_t num, uint16_t modulo)					-> uint8_t;
-	inline auto _pol_mul(uint8_t f, uint8_t s)						-> uint8_t;
-	
+	inline auto _mul(uint8_t first, uint8_t second)->uint8_t;
+	inline auto _mod(uint16_t num, uint16_t modulo)->uint8_t;
+	inline auto _pol_mul(uint8_t f, uint8_t s)->uint8_t;
+
 	//Auxilary
-	inline auto _key_extension(const char* key, uint8_t* ext_key)	-> void;
-	inline auto _xor_blocks(uint8_t* block1, const uint8_t* block2)	-> void;
-	inline auto _shift(uint32_t from, uint8_t* state)				-> void;
-	inline auto _split_key(const char* key)							-> void;
+	inline auto _key_extension(const char* key, uint8_t* ext_key)		-> void;
+	inline auto _xor_blocks(uint8_t* block1, const uint8_t* block2)		-> void;
+	inline auto _shift(uint32_t from, uint8_t* state)					-> void;
+	inline auto _split_key(const char* key)								-> void;
 
 	//Encryption
-	inline auto _rot_byte(const uint8_t* byte, uint8_t* to)			-> void;
-	inline auto _sub_byte(uint8_t& byte)							-> void;
-	inline auto _sub_bytes(uint8_t* state)							-> void;
-	inline auto _shift_rows(uint8_t* state)							-> void;
-	inline auto _mix_colums(uint8_t* state)							-> void;
+	inline auto _rot_byte(const uint8_t* byte, uint8_t* to)				-> void;
+	inline auto _sub_byte(uint8_t& byte)								-> void;
+	inline auto _sub_bytes(uint8_t* state)								-> void;
+	inline auto _shift_rows(uint8_t* state)								-> void;
+	inline auto _mix_colums(uint8_t* state)								-> void;
 
 	//Decryption
-	inline auto _inv_sub_byte(uint8_t& byte)						-> void;
-	inline auto _inv_sub_bytes(uint8_t* state)						-> void;
-	inline auto _inv_mix_colums(uint8_t* state)						-> void;
-	inline auto _inv_shift_rows(uint8_t* state)						-> void;
-	inline auto _cry_round(uint8_t* block)							-> void;
-	inline auto _inv_cry_round(uint8_t* block)						-> void;
+	inline auto _inv_sub_byte(uint8_t& byte)							-> void;
+	inline auto _inv_sub_bytes(uint8_t* state)							-> void;
+	inline auto _inv_mix_colums(uint8_t* state)							-> void;
+	inline auto _inv_shift_rows(uint8_t* state)							-> void;
 
 public:
-	virtual auto set_key(const char* key)							-> void override;
-	virtual auto encrypt(uint8_t* block)							-> void override = 0;
-	virtual auto decrypt(uint8_t* block)							-> void override = 0;
-	virtual auto reset()											-> void override = 0;
-	virtual auto set_substitution_tables(
-		uint8_t** sbox,
-		uint8_t** inv_sbox)											-> void override;
-	virtual ~AesCore();
-};
-/*
-	CFB,  //Chipher Feed Back
-	OFB,  //Output Feed Back
-	CTR   //Counter
-*/
+	AesCore(const char* key);
+	AesCore(const AesCore& aesCore);
 
-
-class AesEcbCryptor final : public AesCore {
-public:
-	AesEcbCryptor();
-	AesEcbCryptor(const char* key);
-	AesEcbCryptor(const AesEcbCryptor& aesEcbCryptor);
-	~AesEcbCryptor() = default;
-
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-};
-
-
-class AesCbcCryptor final : public AesCore {
-private:
-	uint8_t _save_init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint8_t _init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-public:
-	AesCbcCryptor();
-	AesCbcCryptor(const char* key);
-	AesCbcCryptor(const AesCbcCryptor& aesCbcCryptor);
-
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-			auto set_init_vec(uint8_t* init_vec)					-> void;
-	
-	~AesCbcCryptor() = default;
-};
-
-
-class AesCfbCryptor final : public AesCore {
-private:
-	uint8_t _save_init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint8_t _init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-public:
-	AesCfbCryptor();
-	AesCfbCryptor(const char* key);
-	AesCfbCryptor(const AesCfbCryptor& aesCfbCryptor);
-	
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-			auto set_init_vec(uint8_t* init_vec)					-> void;
-
-	~AesCfbCryptor() = default;
+	auto cry_round(uint8_t* block)										-> void;
+	auto inv_cry_round(uint8_t* block)									-> void;
+	auto set_key(const char* key)										-> void override;
+	auto set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox)	-> void override;
+	auto get_block_length()												-> size_t override;
+	~AesCore();
 };
