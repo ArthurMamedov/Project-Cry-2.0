@@ -1,5 +1,5 @@
 #pragma once
-#include "ICryptor.hpp"
+#include "i_core.hpp"
 
 class AesCore final : public ICore {
 protected:
@@ -42,37 +42,37 @@ protected:
 	};
 
 	//Polynomial multiplication, needed for AES
-	inline auto _mul(uint8_t first, uint8_t second)->uint8_t;
-	inline auto _mod(uint16_t num, uint16_t modulo)->uint8_t;
-	inline auto _pol_mul(uint8_t f, uint8_t s)->uint8_t;
+	inline auto _mul(uint8_t first, uint8_t second)									-> uint8_t;
+	inline auto _mod(uint16_t num, uint16_t modulo)									-> uint8_t;
+	inline auto _pol_mul(uint8_t f, uint8_t s)										-> uint8_t;
 
 	//Auxilary
-	inline auto _key_extension(const char* key, uint8_t* ext_key)		-> void;
-	inline auto _xor_blocks(uint8_t* block1, const uint8_t* block2)		-> void;
-	inline auto _shift(uint32_t from, uint8_t* state)					-> void;
-	inline auto _split_key(const char* key)								-> void;
+	inline auto _key_extension(const char* key, uint8_t* ext_key)					-> void;
+	inline auto _xor_blocks(uint8_t* block1, const uint8_t* block2)					-> void;
+	inline auto _shift(uint32_t from, uint8_t* state)								-> void;
+	inline auto _split_key(const char* key)											-> void;
 
 	//Encryption
-	inline auto _rot_byte(const uint8_t* byte, uint8_t* to)				-> void;
-	inline auto _sub_byte(uint8_t& byte)								-> void;
-	inline auto _sub_bytes(uint8_t* state)								-> void;
-	inline auto _shift_rows(uint8_t* state)								-> void;
-	inline auto _mix_colums(uint8_t* state)								-> void;
+	inline auto _rot_byte(const uint8_t* byte, uint8_t* to)							-> void;
+	inline auto _sub_byte(uint8_t& byte)											-> void;
+	inline auto _sub_bytes(uint8_t* state)											-> void;
+	inline auto _shift_rows(uint8_t* state)											-> void;
+	inline auto _mix_colums(uint8_t* state)											-> void;
 
 	//Decryption
-	inline auto _inv_sub_byte(uint8_t& byte)							-> void;
-	inline auto _inv_sub_bytes(uint8_t* state)							-> void;
-	inline auto _inv_mix_colums(uint8_t* state)							-> void;
-	inline auto _inv_shift_rows(uint8_t* state)							-> void;
+	inline auto _inv_sub_byte(uint8_t& byte)										-> void;
+	inline auto _inv_sub_bytes(uint8_t* state)										-> void;
+	inline auto _inv_mix_colums(uint8_t* state)										-> void;
+	inline auto _inv_shift_rows(uint8_t* state)										-> void;
 
 public:
 	AesCore(const char* key);
 	AesCore(const AesCore& aesCore);
 
-	auto cry_round(uint8_t* block)										-> void;
-	auto inv_cry_round(uint8_t* block)									-> void;
-	auto set_key(const char* key)										-> void override;
-	auto set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox)	-> void override;
-	auto get_block_length()												-> size_t override;
+	auto cry_round(uint8_t* block)													-> void;
+	auto inv_cry_round(uint8_t* block)												-> void;
+	auto set_key(const char* key)													-> void override;
+	auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox)	-> void override;
+	auto get_block_length()															-> size_t override;
 	~AesCore();
 };

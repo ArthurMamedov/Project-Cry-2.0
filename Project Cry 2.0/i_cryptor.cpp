@@ -1,4 +1,4 @@
-#include "ICryptor.hpp"
+#include "i_cryptor.hpp"
 
 auto ICryptor::xor_blocks(uint8_t* block1, const uint8_t* block2) -> void {
 	for (size_t c = 0; c < 16; c++) {

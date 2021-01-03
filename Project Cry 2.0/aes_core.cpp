@@ -214,7 +214,7 @@ auto AesCore::set_key(const char* key) -> void {
 	_split_key(key);
 }
 
-auto AesCore::set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox) -> void {
+auto AesCore::set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void {
 	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
 		for (size_t p = 0; p < AES_BLOCK_LENGTH; p++) {
 			_sbox[c][p] = sbox[c][p];
@@ -224,7 +224,7 @@ auto AesCore::set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox) -> voi
 }
 
 auto AesCore::get_block_length() -> size_t {
-	return 16;
+	return AES_BLOCK_LENGTH;
 }
 
 AesCore::~AesCore() {

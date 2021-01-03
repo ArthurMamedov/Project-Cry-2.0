@@ -140,18 +140,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="aes_core.cpp" />
+    <ClCompile Include="blowfish_core.cpp" />
     <ClCompile Include="cryptors.cpp" />
     <ClCompile Include="file_cryptor.cpp" />
     <ClCompile Include="gost_core.cpp" />
-    <ClCompile Include="ICryptor.cpp" />
+    <ClCompile Include="i_cryptor.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="aes_core.hpp" />
+    <ClInclude Include="blowfish_core.hpp" />
     <ClInclude Include="cryptors.hpp" />
     <ClInclude Include="file_cryptor.hpp" />
     <ClInclude Include="gost_core.hpp" />
-    <ClInclude Include="ICryptor.hpp" />
+    <ClInclude Include="i_cryptor.hpp" />
+    <ClInclude Include="i_core.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

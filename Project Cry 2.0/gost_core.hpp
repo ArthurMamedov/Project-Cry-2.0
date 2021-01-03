@@ -1,7 +1,7 @@
 #pragma once
-#include "ICryptor.hpp"
+#include "i_core.hpp"
 
-class Gost28147_89 final : public ICore {
+class GostCore final : public ICore {
 private:
 	uint32_t _round_keys[8];
 	uint8_t _sbox[8][16] = {
@@ -24,11 +24,12 @@ private:
 	inline auto _64bits_block_to_2_32bit_blocks(const uint8_t block[8], uint32_t& N1, uint32_t& N2) -> void;
 	
 public:
-	Gost28147_89(const char* key);
+	GostCore(const char* key);
+	GostCore(const GostCore& gost);
 
 	auto cry_round(uint8_t* block) -> void override;
 	auto inv_cry_round(uint8_t* block) -> void override;
-	auto set_substitution_tables(uint8_t** sbox, uint8_t** inv_sbox) -> void override;
+	auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void override;
 	auto get_block_length() -> size_t override;
 	auto set_key(const char* key) -> void override;
 };
