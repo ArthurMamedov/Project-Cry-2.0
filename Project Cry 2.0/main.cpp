@@ -21,8 +21,8 @@ int main(int argc, char** argv) {
 	//std::cout << p << std::endl;
 	
 	std::unique_ptr<ICore> core(new AesCore("1234567890abcdef"));
-	std::unique_ptr<ICryptor> cryptor(new CbcCryptor(std::move(core)));
-	/*auto p = dynamic_cast<CbcCryptor*>(cryptor.get());
+	std::unique_ptr<ICryptor> cryptor(new CfbCryptor(std::move(core)));
+	/*auto p = dynamic_cast<CfbCryptor*>(cryptor.get());
 	p->set_init_vec((uint8_t*)"abcdef0123456789");*/
 	FileCryptor file(std::move(cryptor));
 	file.encrypt_file("D:\\Projects\\C++\\ProjectCry 2.0\\Project Cry 2.0\\Project Cry 2.0\\tuxedo.txt");

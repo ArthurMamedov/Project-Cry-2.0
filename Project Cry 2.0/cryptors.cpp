@@ -138,25 +138,40 @@ CfbCryptor::CfbCryptor(CfbCryptor&& cfbCryptor) noexcept {
 auto CfbCryptor::set_parallelization_power(unsigned int parallelization_power) -> void {
 	_parallelization_power = parallelization_power;
 	const auto BLOCK_LENGTH = get_block_length();
-	std::unique_ptr<uint8_t[]> init_vec(new uint8_t[BLOCK_LENGTH]);
+	std::unique_ptr<uint8_t[]> init_vec(new uint8_t[BLOCK_LENGTH * _parallelization_power]);
 	std::memcpy(reinterpret_cast<void*>(init_vec.get()), reinterpret_cast<const void*>(_init_vec.get()), BLOCK_LENGTH);
 	_init_vec = std::move(init_vec);
 }
 
 auto CfbCryptor::encrypt(uint8_t* block) -> void {
-	/*_algo->cry_round(_init_vec);
-	_xor_blocks(block, _init_vec);
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(block),
-				16);*/
+	uint8_t* init_vec = _init_vec.get();
+	const auto PARAL_POWER = get_parallelization_power();
+	const auto BLOCK_LENGTH = get_block_length();
+	for (size_t c = 0; c < PARAL_POWER; c++) {
+		_algo->cry_round(init_vec);
+		_xor_blocks(&block[c * BLOCK_LENGTH], init_vec);
+		std::memcpy(reinterpret_cast<void*>(init_vec), reinterpret_cast<const void*>(&block[c * BLOCK_LENGTH]), BLOCK_LENGTH);
+	}
 }
 
 auto CfbCryptor::decrypt(uint8_t* block) -> void {
-	//uint8_t buf[16];
-	//memcpy(buf, block, 16);
-	//_algo->cry_round(_init_vec);
-	//_xor_blocks(block, _init_vec);
-	//memcpy(_init_vec, buf, 16);
+	uint8_t buf[16];  //TODO: problem code: STATIC16
+	std::future<void> f[10];
+	const auto PARAL_POWER = get_parallelization_power();
+	const auto BLOCK_LENGTH = get_block_length();
+	uint8_t* init_vec = _init_vec.get();
+	std::memcpy(reinterpret_cast<void*>(buf), reinterpret_cast<const void*>(&block[(PARAL_POWER-1) * BLOCK_LENGTH]), BLOCK_LENGTH);
+	std::memcpy(reinterpret_cast<void*>(&init_vec[BLOCK_LENGTH]), reinterpret_cast<const void*>(block), (PARAL_POWER - 1) * BLOCK_LENGTH);
+	for (size_t c = 0; c < PARAL_POWER; c++) {
+		f[c] = std::async(std::launch::async, [this, &init_vec, &block, c, BLOCK_LENGTH]() {
+			_algo->cry_round(&init_vec[c*BLOCK_LENGTH]);
+			_xor_blocks(&block[c*BLOCK_LENGTH], &init_vec[c * BLOCK_LENGTH]);
+		});
+	}
+	for (size_t c = 0; c < PARAL_POWER; c++) {
+	f[c].get();
+	}
+	std::memcpy(init_vec, buf, BLOCK_LENGTH);
 }
 
 auto CfbCryptor::reset() -> void {
