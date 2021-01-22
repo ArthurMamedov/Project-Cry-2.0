@@ -2,57 +2,35 @@
 #include <iostream>
 #include <functional>
 #include <numeric>
-#include <immintrin.h>
 #include "cryptors.hpp"
 #include "aes_core.hpp"
 #include "gost_core.hpp"
 #include "blowfish_core.hpp"
 #include "file_cryptor.hpp"
-
-class Factory final {
-private:
-	static std::unique_ptr<ICore> _get_algo_core(const char* algorithm, const char* key) {
-		if (!strcmp(algorithm, "aes")) {
-			return std::make_unique<AesCore>(key);
-		} else if (!strcmp(algorithm, "gost") || !strcmp(algorithm, "gost28147-89")) {
-			return std::make_unique<GostCore>(key);
-		} else if (!strcmp(algorithm, "blowfish")) {
-			return std::make_unique<BlowfishCore>(key);
-		} else {
-			throw std::runtime_error("Unknown algorithm.");
-		}
-	}
-	static std::unique_ptr<ICryptor> _get_cryptor(const char* emode, std::unique_ptr<ICore>&& core) {
-		if (!strcmp(emode, "ecb")) {
-			return std::make_unique<EcbCryptor>(std::move(core));
-		} else if (!strcmp(emode, "cbc")) {
-			return std::make_unique<CbcCryptor>(std::move(core));
-		} else if (!strcmp(emode, "cfb")) {
-			return std::make_unique<CfbCryptor>(std::move(core));
-		} else if (!strcmp(emode, "ofb")) {
-			return std::make_unique<OfbCryptor>(std::move(core));
-		} else if (!strcmp(emode, "ctr")) {
-			return std::make_unique<CtrCryptor>(std::move(core));
-		} else {
-			throw std::runtime_error("Unknown encryption mode.");
-		}
-	}
-public:
-	static std::unique_ptr<ICryptor> make_algorithm(char* algorithm, char* emode, const char* key) {
-		for (size_t c = 0; c < strlen(algorithm); c++) {
-			algorithm[c] = static_cast<char>(tolower(static_cast<int>(algorithm[c])));
-		}
-		for (size_t c = 0; c < strlen(emode); c++) {
-			emode[c] = static_cast<char>(tolower(static_cast<int>(emode[c])));
-		}
-		std::unique_ptr<ICore> core = _get_algo_core(algorithm, key);
-		return _get_cryptor(emode, std::move(core));
-	}
-};
+#include "factory.hpp"
 
 int main(int argc, char** argv) {
 	//cry [encrypt/decrypt/help/enc/dec] [filepath1 filepath2 ...] [aes/gost/blowfish] [ecb/cbc/cfb/ofb/ctr] [key]
-	if (argc < 6 && argv[1] != "help") {
+	//char p[] = "Hello there!";
+	//std::cout << (int*)p << std::endl;
+	//auto lmbd = [&p]() {
+	//	p[0] = 'T';
+	//	std::cout << (int*)p << std::endl;
+	//};
+	//lmbd();
+	//std::cout << p << std::endl;
+	
+	std::unique_ptr<ICore> core(new AesCore("1234567890abcdef"));
+	std::unique_ptr<ICryptor> cryptor(new CbcCryptor(std::move(core)));
+	/*auto p = dynamic_cast<CbcCryptor*>(cryptor.get());
+	p->set_init_vec((uint8_t*)"abcdef0123456789");*/
+	FileCryptor file(std::move(cryptor));
+	file.encrypt_file("D:\\Projects\\C++\\ProjectCry 2.0\\Project Cry 2.0\\Project Cry 2.0\\tuxedo.txt");
+	file.decrypt_file("D:\\Projects\\C++\\ProjectCry 2.0\\Project Cry 2.0\\Project Cry 2.0\\tuxedo.txt.enc");
+	std::cout << "FINISH!" << std::endl;
+
+	
+	/*if (argc < 6 && argv[1] != "help") {
 		std::cout << "Not enought arguments." << std::endl;
 		return 0;
 	} else if (argc < 6 && argv[1] == "help") {
@@ -78,7 +56,7 @@ int main(int argc, char** argv) {
 		}
 	} catch (const std::exception& ex) {
 		std::cout << ex.what() << std::endl;
-	}
+	}*/
 
 	return 0;
 }

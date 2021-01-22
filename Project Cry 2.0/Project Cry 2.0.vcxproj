@@ -142,6 +142,7 @@
     <ClCompile Include="aes_core.cpp" />
     <ClCompile Include="blowfish_core.cpp" />
     <ClCompile Include="cryptors.cpp" />
+    <ClCompile Include="factory.cpp" />
     <ClCompile Include="file_cryptor.cpp" />
     <ClCompile Include="gost_core.cpp" />
     <ClCompile Include="i_cryptor.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="aes_core.hpp" />
     <ClInclude Include="blowfish_core.hpp" />
     <ClInclude Include="cryptors.hpp" />
+    <ClInclude Include="factory.hpp" />
     <ClInclude Include="file_cryptor.hpp" />
     <ClInclude Include="gost_core.hpp" />
     <ClInclude Include="i_cryptor.hpp" />

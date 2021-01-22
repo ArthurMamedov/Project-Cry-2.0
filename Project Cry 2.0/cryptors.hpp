@@ -4,44 +4,48 @@
 
 class EcbCryptor final : public ICryptor {
 public:
-	EcbCryptor(std::unique_ptr<ICore>&& algo);
+	EcbCryptor(std::unique_ptr<ICore>&& algo, unsigned int parallelization_power = 1);
 	EcbCryptor(EcbCryptor&& aesEcbCryptor) noexcept;
 
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-	
+	auto encrypt(uint8_t* block)								-> void override;
+	auto decrypt(uint8_t* block)								-> void override;
+	auto reset()												-> void override;
+	auto set_parallelization_power(unsigned int parallelization_power)	-> void override;
 	~EcbCryptor() = default;
 };
 
 class CbcCryptor final : public ICryptor {
 private:
-	uint8_t _save_init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint8_t _init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	std::unique_ptr<uint8_t[]> _init_vec;
+	std::unique_ptr<uint8_t[]> _save_init_vec;
 public:
-	CbcCryptor(std::unique_ptr<ICore>&& algo);
+	CbcCryptor(std::unique_ptr<ICore>&& algo, unsigned int parallelization_power = 1);
 	CbcCryptor(CbcCryptor&& CbcCryptor) noexcept;
 
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-			auto set_init_vec(uint8_t* init_vec)					-> void;
+	auto set_parallelization_power(unsigned int parallelization_power)	-> void override;
+	auto encrypt(uint8_t* block)										-> void override;
+	auto decrypt(uint8_t* block)										-> void override;
+	auto reset()														-> void override;
+	auto set_init_vec(const uint8_t* init_vec)							-> void;
 	
 	~CbcCryptor() = default;
 };
 
 class CfbCryptor final : public ICryptor {
 private:
-	uint8_t _save_init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint8_t _init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	std::unique_ptr<uint8_t[]> _init_vec;
+	std::unique_ptr<uint8_t[]> _save_init_vec;
+	/*uint8_t _save_init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	uint8_t _init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };*/
 public:
-	CfbCryptor(std::unique_ptr<ICore>&& algo);
+	CfbCryptor(std::unique_ptr<ICore>&& algo, unsigned int parallelization_power = 1);
 	CfbCryptor(CfbCryptor&& CfbCryptor) noexcept;
 	
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-			auto set_init_vec(uint8_t* init_vec)					-> void;
+	auto set_parallelization_power(unsigned int parallelization_power)	-> void override;
+	auto encrypt(uint8_t* block)										-> void override;
+	auto decrypt(uint8_t* block)										-> void override;
+	auto reset()														-> void override;
+	auto set_init_vec(const uint8_t* init_vec)							-> void;
 
 	~CfbCryptor() = default;
 };
@@ -51,13 +55,13 @@ private:
 	uint8_t _save_init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	uint8_t _init_vec[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 public:
-	OfbCryptor(std::unique_ptr<ICore>&& algo);
+	OfbCryptor(std::unique_ptr<ICore>&& algo, unsigned int parallelization_power = 1);
 	OfbCryptor(OfbCryptor&& ofbCryptor) noexcept;
 
 	virtual auto encrypt(uint8_t* block)							-> void override;
 	virtual auto decrypt(uint8_t* block)							-> void override;
 	virtual auto reset()											-> void override;
-			auto set_init_vec(uint8_t* init_vec)					-> void;
+			auto set_init_vec(const uint8_t* init_vec)				-> void;
 };
 
 class CtrCryptor final : public ICryptor {
@@ -98,7 +102,7 @@ private:
 	};
 	uint128_t _counter;
 public:
-	CtrCryptor(std::unique_ptr<ICore>&& algo);
+	CtrCryptor(std::unique_ptr<ICore>&& algo, unsigned int parallelization_power = 1);
 	CtrCryptor(CtrCryptor&& ctrCryptor) noexcept;
 	
 	virtual auto encrypt(uint8_t* block)							-> void override;
