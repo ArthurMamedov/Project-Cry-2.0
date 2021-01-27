@@ -1,4 +1,5 @@
 #include <future>
+#include <iostream>
 #include <array>
 #include <stdexcept>
 #include <cstring>
@@ -195,42 +196,69 @@ auto CfbCryptor::set_init_vec(const uint8_t* init_vec) -> void {
 OfbCryptor::OfbCryptor(std::unique_ptr<ICore>&& algo, unsigned int parallelization_power) {
 	_algo = std::move(algo);
 	_parallelization_power = parallelization_power;
+	_init_vec.reset(new uint8_t[_parallelization_power * get_block_length()]);
+	_save_init_vec.reset(new uint8_t[get_block_length()]);
+	for (size_t c = 0; c < get_block_length(); c++) {
+		_init_vec[c] = _save_init_vec[c] = 0;
+	}
 }
 
 OfbCryptor::OfbCryptor(OfbCryptor&& ofbCryptor) noexcept {
 	_algo = std::move(ofbCryptor._algo);
 	_parallelization_power = ofbCryptor._parallelization_power;
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(ofbCryptor._init_vec),
-				16);
-	std::memcpy(reinterpret_cast<void*>(_save_init_vec),
-				reinterpret_cast<const void*>(ofbCryptor._save_init_vec),
-				16);
+	_init_vec = std::move(ofbCryptor._init_vec);
+	_save_init_vec = std::move(ofbCryptor._save_init_vec);
+}
+
+auto OfbCryptor::set_parallelization_power(unsigned int parallelization_power) -> void {
+	_parallelization_power = parallelization_power;
+	const auto BLOCK_LENGTH = get_block_length();
+	std::unique_ptr<uint8_t[]> init_vec(new uint8_t[BLOCK_LENGTH * _parallelization_power]);
+	std::memcpy(reinterpret_cast<void*>(init_vec.get()), reinterpret_cast<const void*>(_init_vec.get()), BLOCK_LENGTH);
+	_init_vec = std::move(init_vec);
 }
 
 auto OfbCryptor::encrypt(uint8_t* block) -> void {
-	_algo->cry_round(_init_vec);
-	_xor_blocks(block, _init_vec);
+	std::future<void> f[10];
+	auto init_vec = _init_vec.get();
+	const auto BLOCK_LENGTH = get_block_length();
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		if (c != 0) {
+			std::memcpy(&init_vec[(c - 1) * BLOCK_LENGTH], &init_vec[c * BLOCK_LENGTH], BLOCK_LENGTH);
+		}
+		_algo->cry_round(&init_vec[c * BLOCK_LENGTH]);
+	}
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		f[c] = std::async(std::launch::async, [this, &block, &init_vec, c, BLOCK_LENGTH]() {
+			_xor_blocks(&block[c * BLOCK_LENGTH], &init_vec[c * BLOCK_LENGTH]);
+		});
+	}
 }
 
 auto OfbCryptor::decrypt(uint8_t* block) -> void {
-	_algo->cry_round(_init_vec);
-	_xor_blocks(block, _init_vec);
+	std::future<void> f[10];
+	auto init_vec = _init_vec.get();
+	const auto BLOCK_LENGTH = get_block_length();
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		if (c != 0) {
+			std::memcpy(&init_vec[(c - 1) * BLOCK_LENGTH], &init_vec[c * BLOCK_LENGTH], BLOCK_LENGTH);
+		}
+		_algo->cry_round(&init_vec[c * BLOCK_LENGTH]);
+	}
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		f[c] = std::async(std::launch::async, [this, &block, &init_vec, c, BLOCK_LENGTH]() {
+			_xor_blocks(&block[c * BLOCK_LENGTH], &init_vec[c * BLOCK_LENGTH]);
+		});
+	}
 }
 
 auto OfbCryptor::reset() -> void {
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(_save_init_vec),
-				16);
+	std::memcpy(reinterpret_cast<void*>(_init_vec.get()), reinterpret_cast<const void*>(_save_init_vec.get()), get_block_length());
 }
 
 auto OfbCryptor::set_init_vec(const uint8_t* init_vec) -> void {
-	std::memcpy(reinterpret_cast<void*>(_save_init_vec),
-				reinterpret_cast<const void*>(init_vec),
-				16);
-	std::memcpy(reinterpret_cast<void*>(_init_vec),
-				reinterpret_cast<const void*>(_save_init_vec),
-				16);
+	std::memcpy(reinterpret_cast<void*>(_save_init_vec.get()), reinterpret_cast<const void*>(init_vec), get_block_length());
+	std::memcpy(reinterpret_cast<void*>(_init_vec.get()), reinterpret_cast<const void*>(_save_init_vec.get()), get_block_length());
 }
 #pragma endregion //OfbCryptor
 
@@ -248,31 +276,61 @@ CtrCryptor::CtrCryptor(CtrCryptor&& ctrCryptor) noexcept {
 				16);
 }
 
+auto CtrCryptor::set_parallelization_power(unsigned int parallelization_power) -> void {
+	_parallelization_power = parallelization_power;
+}
+
 auto CtrCryptor::encrypt(uint8_t* block) -> void {
-	uint8_t round_c[16];
-	std::memcpy(reinterpret_cast<void*>(round_c),
-				reinterpret_cast<const void*>(static_cast<uint8_t*>(_counter)),
-				16);
-	_algo->cry_round(round_c);
-	_xor_blocks(block, round_c);
-	++_counter;
+	std::future<void> f[10];
+	const auto BLOCK_LENGTH = get_block_length();
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		f[c] = std::async(std::launch::async, [this, &block, c, BLOCK_LENGTH]() {
+			uint8_t tmp[16];
+			Counter counter = _counter + c;
+			std::memcpy(tmp, reinterpret_cast<const void*>(static_cast<uint8_t*>(counter)), BLOCK_LENGTH);
+			_algo->cry_round(tmp);
+			_xor_blocks(&block[c * BLOCK_LENGTH], tmp);
+		});
+	}
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		f[c].get();
+	}
+	_counter += _parallelization_power;
 }
 
 auto CtrCryptor::decrypt(uint8_t* block) -> void {
-	uint8_t round_c[16];
-	std::memcpy(reinterpret_cast<void*>(round_c),
-				reinterpret_cast<const void*>(static_cast<uint8_t*>(_counter)),
-				16);
-	_algo->cry_round(round_c);
-	_xor_blocks(block, round_c);
-	++_counter;
+	std::future<void> f[10];
+	const auto BLOCK_LENGTH = get_block_length();
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		f[c] = std::async(std::launch::async, [this, &block, c, BLOCK_LENGTH]() {
+			uint8_t tmp[16];
+			Counter counter = _counter + c;
+			std::memcpy(tmp, reinterpret_cast<const void*>(static_cast<uint8_t*>(counter)), BLOCK_LENGTH);
+			_algo->cry_round(tmp);
+			_xor_blocks(&block[c * BLOCK_LENGTH], tmp);
+		});
+	}
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		f[c].get();
+	}
+	_counter += _parallelization_power;
+	/*std::future<void> f[10];
+	const auto BLOCK_LENGTH = get_block_length();
+	for (size_t c = 0; c < _parallelization_power; c++) {
+		f[c] = std::async(std::launch::async, [this, &block, c, BLOCK_LENGTH]() {
+			uint8_t tmp[16];
+			std::memcpy(tmp, reinterpret_cast<const void*>(static_cast<uint8_t*>(_counter + c)), get_block_length());
+			for (size_t i = 0; i < 16; i++) {
+				std::cout << (int)tmp[c];
+			} std::cout << std::endl;
+			_algo->cry_round(tmp);
+			_xor_blocks(&block[c * BLOCK_LENGTH], tmp);
+		});
+	}
+	_counter += _parallelization_power;*/
 }
 
 auto CtrCryptor::reset() -> void {
 	_counter.null();
-}
-
-auto CtrCryptor::set_init_vec(uint8_t* init_vec) -> void {
-	return;
 }
 #pragma endregion //CtrCryptor

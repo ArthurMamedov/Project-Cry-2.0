@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="aes_core.cpp" />
     <ClCompile Include="blowfish_core.cpp" />
+    <ClCompile Include="Counter.cpp" />
     <ClCompile Include="cryptors.cpp" />
     <ClCompile Include="factory.cpp" />
     <ClCompile Include="file_cryptor.cpp" />
@@ -151,6 +152,7 @@
   <ItemGroup>
     <ClInclude Include="aes_core.hpp" />
     <ClInclude Include="blowfish_core.hpp" />
+    <ClInclude Include="Counter.hpp" />
     <ClInclude Include="cryptors.hpp" />
     <ClInclude Include="factory.hpp" />
     <ClInclude Include="file_cryptor.hpp" />
