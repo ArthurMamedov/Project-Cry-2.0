@@ -8,7 +8,7 @@ auto Factory::_get_algo_core(const char* algorithm, const char* key) -> std::uni
 	} else if (!strcmp(algorithm, "blowfish")) {
 		return std::make_unique<BlowfishCore>(key);
 	} else {
-		throw std::runtime_error("Unknown algorithm.");
+		throw std::runtime_error(std::string("Unknown algorithm: ") + algorithm);
 	}
 }
 
@@ -24,7 +24,7 @@ auto Factory::_get_cryptor(const char* emode, std::unique_ptr<ICore>&& core) -> 
 	} else if (!strcmp(emode, "ctr")) {
 		return std::make_unique<CtrCryptor>(std::move(core));
 	} else {
-		throw std::runtime_error("Unknown encryption mode.");
+		throw std::runtime_error(std::string("Unknown encryption mode: ") + emode);
 	}
 }
 

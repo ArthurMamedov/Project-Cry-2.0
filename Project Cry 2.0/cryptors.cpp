@@ -334,3 +334,133 @@ auto CtrCryptor::reset() -> void {
 	_counter.null();
 }
 #pragma endregion //CtrCryptor
+
+#pragma region Cryptor
+auto Cryptor::_encrypt_ecb(uint8_t* block) -> void {
+}
+
+auto Cryptor::_encrypt_cbc(uint8_t* block) -> void {
+}
+
+auto Cryptor::_encrypt_cfb(uint8_t* block) -> void {
+}
+
+auto Cryptor::_encrypt_ofb(uint8_t* block) -> void {
+}
+
+auto Cryptor::_encrypt_ctr(uint8_t* block) -> void {
+}
+
+auto Cryptor::_decrypt_ecb(uint8_t* block) -> void {
+}
+
+auto Cryptor::_decrypt_cbc(uint8_t* block) -> void {
+}
+
+auto Cryptor::_decrypt_cfb(uint8_t* block) -> void {
+}
+
+auto Cryptor::_decrypt_ofb(uint8_t* block) -> void {
+}
+
+auto Cryptor::_decrypt_ctr(uint8_t* block) -> void {
+}
+
+auto Cryptor::_xor_blocks(uint8_t* block1, const uint8_t* block2) -> void {
+}
+
+auto Cryptor::_inc_init_vec(const uint64_t component) -> void {
+}
+
+Cryptor::Cryptor() {
+}
+
+Cryptor::Cryptor(std::unique_ptr<ICore> cryptor, const unsigned int paral_power, const char* init_vec) {
+}
+
+Cryptor::Cryptor(Cryptor&& cryptor) {
+}
+
+Cryptor::Cryptor(const Cryptor& cryptor) {
+}
+
+Cryptor::~Cryptor() {
+}
+
+auto Cryptor::reset() -> void {
+	std::memcpy(reinterpret_cast<void*>(_init_vec.get()),
+				reinterpret_cast<const void*>(_save_init_vec.get()),
+				get_block_length());
+}
+
+auto Cryptor::encrypt(uint8_t* block) -> void {
+	_encrypt(block);
+}
+
+auto Cryptor::decrypt(uint8_t* block) -> void {
+	_decrypt(block);
+}
+
+auto Cryptor::get_parallelization_power() const -> unsigned int {
+	return _paral_power;
+}
+
+auto Cryptor::set_parallelization_power(const unsigned int paral_power) -> void {
+	if (_encryption_mode != EncryptionMode::CTR) {
+		_paral_power = paral_power;
+		const auto BLOCK_LENGTH = get_block_length();
+		std::unique_ptr<uint8_t[]> init_vec(new uint8_t[BLOCK_LENGTH * _paral_power]);
+		std::memcpy(reinterpret_cast<void*>(init_vec.get()),
+					reinterpret_cast<const void*>(_init_vec.get()),
+					BLOCK_LENGTH);
+		_init_vec = std::move(init_vec);
+	}
+}
+
+auto Cryptor::get_block_length() const -> unsigned int {
+	return _cryptor->get_block_length();
+}
+
+auto Cryptor::set_initialization_vector(const uint8_t* init_vec) -> void {
+	std::memcpy(reinterpret_cast<void*>(_save_init_vec.get()), reinterpret_cast<const void*>(init_vec), get_block_length());
+	std::memcpy(reinterpret_cast<void*>(_init_vec.get()), reinterpret_cast<const void*>(init_vec), get_block_length());
+}
+
+auto Cryptor::get_initializatoin_vector() -> const uint8_t* {
+	return _save_init_vec.get();
+}
+
+auto Cryptor::set_encryption_mode(EncryptionMode encryption_mode) -> void {
+	_encryption_mode = encryption_mode;
+	size_t init_vec_length = _paral_power * get_block_length();
+	switch (_encryption_mode) {
+		case EncryptionMode::ECB:
+			_encrypt = [this](uint8_t* block) {	_encrypt_ecb(block); };
+			_decrypt = [this](uint8_t* block) { _decrypt_ecb(block); };
+			break;
+		case EncryptionMode::CBC:
+			_encrypt = [this](uint8_t* block) {	_encrypt_cbc(block); };
+			_decrypt = [this](uint8_t* block) { _decrypt_cbc(block); };
+			break;
+		case EncryptionMode::CFB:
+			_encrypt = [this](uint8_t* block) {	_encrypt_cfb(block); };
+			_decrypt = [this](uint8_t* block) { _decrypt_cfb(block); };
+			break;
+		case EncryptionMode::OFB:
+			_encrypt = [this](uint8_t* block) {	_encrypt_ofb(block); };
+			_decrypt = [this](uint8_t* block) { _decrypt_ofb(block); };
+			break;
+		case EncryptionMode::CTR:
+			_encrypt = [this](uint8_t* block) {	_encrypt_ctr(block); };
+			_decrypt = [this](uint8_t* block) { _decrypt_ctr(block); };
+			std::unique_ptr<uint8_t[]> init_vec(new uint8_t[get_block_length()]);
+			init_vec_length = get_block_length();
+			break;
+	}
+	reset();
+}
+
+auto Cryptor::get_encryption_mode() -> EncryptionMode {
+	return _encryption_mode;
+}
+#pragma endregion

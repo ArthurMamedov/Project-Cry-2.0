@@ -72,7 +72,7 @@ inline auto AesCore::_xor_blocks(uint8_t* block1, const uint8_t* block2) -> void
 }
 
 inline auto AesCore::_shift(uint32_t from, uint8_t* state) -> void {
-	for (size_t i = from; i < from + 3; i++) {
+	for (uint32_t i = from; i < from + 3; i++) {
 		std::swap(state[i], state[i + 1]);
 	}
 }
