@@ -14,15 +14,30 @@
 
 int main(int argc, char** argv) {
 	//cry [encrypt/decrypt/help/enc/dec] [filepath1 filepath2 ...] [aes/gost/blowfish] [ecb/cbc/cfb/ofb/ctr] [key]
-	
+
 	if (argc < 6 && 0 != strcmp(argv[1], "help")) {
 		std::cerr << "Not enought arguments." << std::endl;
 		return -1;
-	} else if (argc < 6 && 0 == strcmp(argv[1], "help")) {
+	}
+	else if (argc < 6 && 0 == strcmp(argv[1], "help"))
+	{
 		std::string message =
 			"Welcome to Project Cry 2.0!\n\n"
 			"Project Cry is a simple program for encryption/decryption files.\n"
-			"This applicatoin originally was created just as a ";
+			"This aplicatoin was created for DEMONSTRATION PURPOSES ONLY and NOT RECOMENDED for using on a regular basis.\n"
+			"It demonstrates the abylities of modern cryptography.\n\n"
+			"Supported algorithms:\n"
+			"\t- AES\n\t- GOST 28147-89\n\t- BLOWFISH\n\n"
+			"Supported encryption modes:\n"
+			"\t- ECB\n\t- CBC\n\t- CFB\n\t- OFB\n\t- CTR\n\n"
+			"How to use:\n"
+			"To use this application, run .exe file with the following parameters:\n"
+			"\t- mode: encrypt/decrypt/help\n"
+			"\t- file(s) to encrytp/decrypt (for example, 'file.txt')\n"
+			"\t- algorithm name (listed in 'Supported algorithms' section)\n"
+			"\t- encryption mode (listed in 'Supported encryption modes' section)\n"
+			"\t- encryption key (for example, '1234567890abcdef'\n"
+			"Example: Cry encrypt file.txt aes cbc 0123456789abcdef\n";
 		std::cout << message << std::endl;
 		return 0;
 	}

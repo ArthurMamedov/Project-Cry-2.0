@@ -5,10 +5,9 @@
 
 class FileCryptor final {
 private:
-	std::unique_ptr<ICryptor> _crypting_algorithm;
-	std::unique_ptr<uint8_t[]> _block;
-	auto _read_flag(std::ifstream& r)											-> void;
-	auto _write_flag(std::ofstream& w)											-> void;
+	std::unique_ptr<ICryptor> crypting_algorithm;
+	void read_flag(std::ifstream& r);
+	void write_flag(std::ofstream& w);
 public:
 	bool in_place;
 
@@ -17,8 +16,8 @@ public:
 	FileCryptor(FileCryptor&& fileCryptor) noexcept;
 	~FileCryptor() = default;
 
-	auto set_crypting_algorithm(std::unique_ptr<ICryptor>&& cryptor) noexcept	-> void;
-	auto encrypt_file(const std::string& path_to_file)							-> void;
-	auto decrypt_file(const std::string& path_to_file)							-> void;
+	void set_crypting_algorithm(std::unique_ptr<ICryptor>&& cryptor) noexcept;
+	void encrypt_file(const std::string& path_to_file);
+	void decrypt_file(const std::string& path_to_file);
 };
 
