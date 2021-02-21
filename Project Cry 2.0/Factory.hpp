@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <stdexcept>
-#include "aes_core.hpp"
-#include "gost_core.hpp"
-#include "blowfish_core.hpp"
+#include "AesCore.hpp"
+#include "GostCore.hpp"
+#include "BlowfishCore.hpp"
 #include "cryptors.hpp"
 
 class Factory final {

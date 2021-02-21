@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "blowfish_core.hpp"
+#include "BlowfishCore.hpp"
 
 inline auto BlowfishCore::_split_block(const uint8_t* block, uint32_t& f, uint32_t& s) -> void {
 	for (int c = 0; c < 4; c++) {

@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "aes_core.hpp"
+#include "AesCore.hpp"
 
 #define AES_EXT_KEY_LENGTH	176
 #define AES_BLOCK_LENGTH	16

@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <fstream>
-#include "file_cryptor.hpp"
+#include "FileCryptor.hpp"
 
 FileCryptor::FileCryptor() {
 	this->crypting_algorithm = nullptr;

@@ -1,5 +1,5 @@
 #pragma once
-#include "i_core.hpp"
+#include "ICore.hpp"
 
 class AesCore final : public ICore {
 protected:

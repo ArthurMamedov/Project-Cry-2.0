@@ -1,5 +1,5 @@
 #include <stdexcept>
-#include "gost_core.hpp"
+#include "GostCore.hpp"
 
 inline auto GostCore::_64bits_block_to_2_32bit_blocks(const uint8_t block[8], uint32_t& N1, uint32_t& N2) -> void {
 	for (int c = 0; c < 4; c++) {

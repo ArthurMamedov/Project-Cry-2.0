@@ -1,10 +1,12 @@
 #pragma once
 #include <iostream>
-#include <functional>
-#include <numeric>
-#include <chrono>
-#include "file_cryptor.hpp"
-#include "factory.hpp"
+//#include <functional>
+//#include <numeric>
+//#include <chrono>
+//#include "FileCryptor.hpp"
+//#include "Factory.hpp"
+#include <conio.h>
+#include "AnubisCore.hpp"
 
 #define TAKE_TIME(func, arg, res) \
 	auto start = std::chrono::high_resolution_clock::now(); \
@@ -12,10 +14,51 @@
 	auto finish = std::chrono::high_resolution_clock::now(); \
 	res = (std::chrono::duration_cast<std::chrono::milliseconds>(finish - start)).count();
 
+void test_foo(uint8_t* block, const uint8_t* const_block) {
+	block[0] = const_block[1];
+	block[2] = const_block[0];
+}
+
 int main(int argc, char** argv) {
 	//cry [encrypt/decrypt/help/enc/dec] [filepath1 filepath2 ...] [aes/gost/blowfish] [ecb/cbc/cfb/ofb/ctr] [key]
+	using namespace std;
 
-	if (argc < 6 && 0 != strcmp(argv[1], "help")) {
+	uint8_t msg[] = { 171, 53, 61, 147, 178, 56, 147, 123, 229, 117, 203, 248, 168, 79, 148, 166 };
+
+	uint8_t matrixH[17] = { 1, 2, 4, 6, 2, 1, 6, 4, 4, 6, 1, 2, 6, 4, 2, 1, 0 };
+	for (size_t c = 0; c < 16; c++) {
+		cout << (int)msg[c] << ' ';
+	} cout << endl;
+	//cout << strlen(reinterpret_cast<char*>(msg)) << endl;
+	AnubisCore anubis;
+	//anubis._matrix_mul(msg, matrixH);
+	anubis._key_extension(matrixH);
+	anubis.cry_round(msg);
+	for (size_t c = 0; c < 16; c++) {
+		cout << (int)msg[c] << ' ';
+	} cout << endl;
+	anubis.inv_cry_round(msg);
+
+	for (size_t c = 0; c < 16; c++) {
+		cout << (int)msg[c] << ' ';
+	} cout << endl;
+	//AnubisCore anubis;
+	//for (size_t c = 0; c < 16; c++) {
+	//	cout << (int)msg[c] << ' ';
+	//} cout << endl;
+	//for (size_t i = 0; i < 64; i++) {
+	//	//cout << "Loop #" << i << ": ";
+	//	//for (size_t c = 0; c < 16; c++) {
+	//	//	cout << (int)msg[c] << ' ';
+	//	//} cout << endl;
+	//	anubis._matrix_mul(msg, matrixH);
+	//}
+	//for (size_t c = 0; c < 16; c++) {
+	//	cout << (int)msg[c] << ' ';
+	//} cout << endl;
+
+
+	/*if (argc < 6 && 0 != strcmp(argv[1], "help")) {
 		std::cerr << "Not enought arguments." << std::endl;
 		return -1;
 	}
@@ -70,7 +113,7 @@ int main(int argc, char** argv) {
 	} catch (const std::exception& ex) {
 		std::cerr << ex.what() << std::endl;
 		return -1;
-	}
+	}*/
 
 	return 0;
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
-#include "i_cryptor.hpp"
+#include "ICryptor.hpp"
 
 class FileCryptor final {
 private:

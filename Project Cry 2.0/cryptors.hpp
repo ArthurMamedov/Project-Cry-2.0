@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "i_cryptor.hpp"
+#include "ICryptor.hpp"
 
 class EcbCryptor final : public ICryptor {
 public:

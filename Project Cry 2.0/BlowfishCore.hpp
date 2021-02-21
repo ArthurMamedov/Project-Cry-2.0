@@ -1,5 +1,5 @@
 #pragma once
-#include "i_core.hpp"
+#include "ICore.hpp"
 
 class BlowfishCore final: public ICore {
 private:

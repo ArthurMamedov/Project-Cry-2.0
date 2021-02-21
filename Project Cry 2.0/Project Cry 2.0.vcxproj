@@ -147,26 +147,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="aes_core.cpp" />
-    <ClCompile Include="blowfish_core.cpp" />
+    <ClCompile Include="AesCore.cpp" />
+    <ClCompile Include="AnubisCore.cpp" />
+    <ClCompile Include="BlowfishCore.cpp" />
     <ClCompile Include="Counter.cpp" />
     <ClCompile Include="cryptors.cpp" />
-    <ClCompile Include="factory.cpp" />
-    <ClCompile Include="file_cryptor.cpp" />
-    <ClCompile Include="gost_core.cpp" />
-    <ClCompile Include="i_cryptor.cpp" />
+    <ClCompile Include="Factory.cpp" />
+    <ClCompile Include="FileCryptor.cpp" />
+    <ClCompile Include="GostCore.cpp" />
+    <ClCompile Include="ICryptor.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="aes_core.hpp" />
-    <ClInclude Include="blowfish_core.hpp" />
+    <ClInclude Include="AesCore.hpp" />
+    <ClInclude Include="AnubisCore.hpp" />
+    <ClInclude Include="BlowfishCore.hpp" />
     <ClInclude Include="Counter.hpp" />
     <ClInclude Include="cryptors.hpp" />
-    <ClInclude Include="factory.hpp" />
-    <ClInclude Include="file_cryptor.hpp" />
-    <ClInclude Include="gost_core.hpp" />
-    <ClInclude Include="i_cryptor.hpp" />
-    <ClInclude Include="i_core.hpp" />
+    <ClInclude Include="Factory.hpp" />
+    <ClInclude Include="FileCryptor.hpp" />
+    <ClInclude Include="GostCore.hpp" />
+    <ClInclude Include="ICore.hpp" />
+    <ClInclude Include="ICryptor.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
