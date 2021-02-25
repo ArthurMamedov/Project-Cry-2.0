@@ -4,6 +4,7 @@
 #include "AesCore.hpp"
 #include "GostCore.hpp"
 #include "BlowfishCore.hpp"
+#include "AnubisCore.hpp"
 #include "cryptors.hpp"
 
 class Factory final {

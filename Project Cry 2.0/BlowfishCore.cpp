@@ -19,11 +19,6 @@ inline auto BlowfishCore::_xor_p_block_with_key(const char* key, const size_t ke
 		buff ^= key[f];
 		++i;
 		f = f < key_size ? f + 1 : 0;
-		/*if (f < key_size) {
-			++f;
-		} else {
-			f = 0;
-		}*/
 	}
 }
 
@@ -136,7 +131,7 @@ auto BlowfishCore::set_substitution_tables(const uint8_t** sbox, const uint8_t**
 }
 
 auto BlowfishCore::set_key(const char* key) -> void {
-	_key_extansion(key);  //experimental
+	_key_extansion(key);
 }
 
 auto BlowfishCore::get_block_length() -> size_t {

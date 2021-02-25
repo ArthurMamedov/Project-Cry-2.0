@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "ICore.hpp"
 
 class AnubisCore final : public ICore {
@@ -48,26 +49,20 @@ private:
 
 	auto _substitution_table(uint8_t* block) -> void;
 	auto _inv_columns(uint8_t* block) -> void;
+	auto _matrix_mul(uint8_t* matrix1, const uint8_t* matrix2) -> void;
+	auto _key_extension(uint8_t* key) -> void;
+	auto _xor_blocks(uint8_t* block1, const uint8_t* block2) -> void;
+	auto _bit_shift(uint8_t* block, const uint8_t* round_key) -> void;
 	inline auto _substitute(uint8_t chr) -> uint8_t;
+	inline auto _set_key(const char* key) -> void;
 
 public:
-	auto _matrix_mul(uint8_t* matrix1, const uint8_t* matrix2) -> void; //not guaranteed to work just fine. Returns correct result only on 64th attempt.
-	auto _key_extension(uint8_t* key) -> void;
-
-	auto _xor_blocks(uint8_t* block1, const uint8_t* block2) -> void;
-
-	auto _bit_shift(uint8_t* block, const uint8_t* round_key) -> void;
-
-	auto _key_whitening(uint8_t* block) -> void;
+	AnubisCore(const char* key);
+	AnubisCore(const AnubisCore& anubis_core);
 
 	virtual auto cry_round(uint8_t* block) -> void override;
-
 	virtual auto inv_cry_round(uint8_t* block) -> void override;
-
 	virtual auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void override;
-
 	virtual auto set_key(const char* key) -> void override;
-
 	virtual auto get_block_length() -> size_t override;
-
 };

@@ -7,6 +7,8 @@ auto Factory::_get_algo_core(const char* algorithm, const char* key) -> std::uni
 		return std::make_unique<GostCore>(key);
 	} else if (!strcmp(algorithm, "blowfish")) {
 		return std::make_unique<BlowfishCore>(key);
+	} else if (!strcmp(algorithm, "anubis")) {
+		return std::make_unique<AnubisCore>(key);
 	} else {
 		throw std::runtime_error(std::string("Unknown algorithm: ") + algorithm);
 	}

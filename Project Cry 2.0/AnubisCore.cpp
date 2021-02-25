@@ -1,4 +1,4 @@
-#include <iostream>
+#include <stdexcept>s
 #include "AnubisCore.hpp"
 #define  INDEX(row, col, N) ((col) + (row) * N)
 
@@ -10,7 +10,7 @@ inline auto AnubisCore::_substitute(uint8_t chr) -> uint8_t {
 }
 
 auto AnubisCore::_substitution_table(uint8_t* block) -> void {
-	for (size_t c = 0; c < get_block_length(); c++) {
+	for (size_t c = 0; c < _block_length; c++) {
 		block[c] = _substitute(block[c]);
 	}
 }
@@ -87,46 +87,68 @@ auto AnubisCore::_bit_shift(uint8_t* block, const uint8_t* round_key) -> void {
 	std::memcpy(&block[8], &right, 8);
 }
 
-
-void printer(uint8_t* block, const size_t size) {
-	for (size_t c = 0; c < size; c++) {
-		std::cout << (int)block[c] << ' ';
-	} std::cout << std::endl;
+inline auto AnubisCore::_set_key(const char* key) -> void {
+	uint8_t _key[41];
+	std::memset(_key, 0, 41);
+	std::memcpy(_key, key, std::strlen(key));
+	_key_extension(_key);
 }
 
+AnubisCore::AnubisCore(const char* key) {
+	_set_key(key);
+}
+
+AnubisCore::AnubisCore(const AnubisCore& anubis_core) {
+	for (size_t c = 0; c < 32; c++) {
+		for (size_t p = 0; p < 8; p++) {
+			_sbox[c][p] = anubis_core._sbox[c][p];
+		}
+	}
+	_round_number = anubis_core._round_number;
+	_ext_key.reset(new uint8_t[_round_number + _block_length]);
+	for (size_t c = 0; c < _round_number + _block_length; c++) {
+		_ext_key[c] = anubis_core._ext_key[c];
+	}
+}
 
 auto AnubisCore::cry_round(uint8_t* block) -> void {
+	_xor_blocks(block, _ext_key.get());
 	for (size_t c = 0; c < _round_number - 1; c++) {
 		_substitution_table(block);
 		_inv_columns(block);
 		_matrix_mul(block, matrixH);
-		_xor_blocks(block, &_ext_key.get()[c * _block_length]);
+		_xor_blocks(block, &_ext_key[c * _block_length]);
 	}
 	_substitution_table(block);
 	_inv_columns(block);
-	_xor_blocks(block, &_ext_key.get()[_round_number - 1 * _block_length]);
+	_xor_blocks(block, &_ext_key[(_round_number - 1) * _block_length]);
 }
 
 auto AnubisCore::inv_cry_round(uint8_t* block) -> void {
-	_xor_blocks(block, &_ext_key.get()[_round_number - 1 * _block_length]);
+	_xor_blocks(block, &_ext_key[(_round_number - 1) * _block_length]);
 	_inv_columns(block);
 	_substitution_table(block);
 	for (int c = _round_number - 2; c >= 0; c--) {
-		_xor_blocks(block, &_ext_key.get()[c * _block_length]);
+		_xor_blocks(block, &_ext_key[c * _block_length]);
 		_matrix_mul(block, inv_matrixH);
 		_inv_columns(block);
 		_substitution_table(block);
 	}
+	_xor_blocks(block, _ext_key.get());
 }
 
 auto AnubisCore::set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void {
-
+	for (size_t c = 0; c < 32; c++) {
+		for (size_t p = 0; p < 8; p++) {
+			_sbox[c][p] = sbox[c][p];
+		}
+	}
 }
 
 auto AnubisCore::set_key(const char* key) -> void {
-
+	_set_key(key);
 }
 
 auto AnubisCore::get_block_length() -> size_t {
-	return 16;
+	return _block_length;
 }
