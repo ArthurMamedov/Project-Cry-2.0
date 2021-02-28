@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 			"This aplicatoin was created for DEMONSTRATION PURPOSES ONLY and NOT RECOMENDED for using on a regular basis.\n"
 			"It demonstrates the abylities of modern cryptography.\n\n"
 			"Supported algorithms:\n"
-			"\t- AES\n\t- GOST 28147-89\n\t- BLOWFISH\n\n"
+			"\t- AES (key length: 16b)\n\t- GOST 28147-89 (key length: 32b)\n\t- BLOWFISH (key length: 4-56b)\n\t- ANUBIS (key length: 16-40b)\n\n"
 			"Supported encryption modes:\n"
 			"\t- ECB\n\t- CBC\n\t- CFB\n\t- OFB\n\t- CTR\n\n"
 			"How to use:\n"
@@ -41,11 +41,12 @@ int main(int argc, char** argv) {
 			"\t- file(s) to encrytp/decrypt (for example, 'file.txt')\n"
 			"\t- algorithm name (listed in 'Supported algorithms' section)\n"
 			"\t- encryption mode (listed in 'Supported encryption modes' section)\n"
-			"\t- encryption key (for example, '1234567890abcdef'\n"
+			"\t- encryption key (for example, '1234567890abcdef')\n"
 			"Example: Cry encrypt file.txt aes cbc 0123456789abcdef\n";
 		std::cout << message << std::endl;
 		return 0;
 	}
+
 	char* mode = argv[1];
 	char* key	= argv[argc - 1];
 	char* emode = argv[argc - 2];
