@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <cstring>
+#include <climits>
 #include "ICryptor.hpp"
 
 class EcbCryptor final : public ICryptor {

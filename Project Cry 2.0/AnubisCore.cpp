@@ -1,4 +1,4 @@
-#include <stdexcept>s
+#include <stdexcept>
 #include "AnubisCore.hpp"
 #define  INDEX(row, col, N) ((col) + (row) * N)
 

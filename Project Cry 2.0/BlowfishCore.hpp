@@ -1,4 +1,5 @@
 #pragma once
+#include <cstring>
 #include "ICore.hpp"
 
 class BlowfishCore final: public ICore {

@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <cstring>
 #include "AesCore.hpp"
 
 #define AES_EXT_KEY_LENGTH	176

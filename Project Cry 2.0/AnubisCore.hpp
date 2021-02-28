@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <cstring>
 #include "ICore.hpp"
 
 class AnubisCore final : public ICore {
