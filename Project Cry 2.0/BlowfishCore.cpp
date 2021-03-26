@@ -76,8 +76,8 @@ inline auto BlowfishCore::_round(uint32_t& block1, uint32_t& block2, const uint3
 
 inline auto BlowfishCore::_join_32b_block(const uint32_t& right, const uint32_t& left, uint8_t* block) -> void {
 	for (int c = 3; c >= 0; c--) {
-		block[c + 4] = right >> (8 * (3 - c));
-		block[c] = left >> (8 * (3 - c));
+		block[c + 4] = static_cast<uint8_t>(right >> (8 * (3 - c)));
+		block[c] = static_cast<uint8_t>(left >> (8 * (3 - c)));
 	}
 }
 
@@ -123,6 +123,7 @@ BlowfishCore::BlowfishCore(const BlowfishCore& blowfishCore) {
 }
 
 auto BlowfishCore::set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void {
+	UNREFERENCED_PARAMETER(inv_sbox); //There is no inv_sbox in Blowfish algorithm, so we don't use it.
 	for (size_t c = 0; c < 4; c++) {
 		for (size_t p = 0; p < 256; p++) {
 			_sbox[c][p] = sbox[c][p];

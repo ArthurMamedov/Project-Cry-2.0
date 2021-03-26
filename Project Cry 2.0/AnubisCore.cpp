@@ -128,7 +128,7 @@ auto AnubisCore::inv_cry_round(uint8_t* block) -> void {
 	_xor_blocks(block, &_ext_key[(_round_number - 1) * _block_length]);
 	_inv_columns(block);
 	_substitution_table(block);
-	for (int c = _round_number - 2; c >= 0; c--) {
+	for (int c = static_cast<int>(_round_number) - 2; c >= 0; c--) {
 		_xor_blocks(block, &_ext_key[c * _block_length]);
 		_matrix_mul(block, inv_matrixH);
 		_inv_columns(block);
@@ -138,6 +138,7 @@ auto AnubisCore::inv_cry_round(uint8_t* block) -> void {
 }
 
 auto AnubisCore::set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void {
+	UNREFERENCED_PARAMETER(inv_sbox);
 	for (size_t c = 0; c < 32; c++) {
 		for (size_t p = 0; p < 8; p++) {
 			_sbox[c][p] = sbox[c][p];

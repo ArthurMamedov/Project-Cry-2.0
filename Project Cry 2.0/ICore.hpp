@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <cstddef>
+#define UNREFERENCED_PARAMETER(param) (param)
 
 class ICore {
 public:

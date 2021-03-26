@@ -200,6 +200,7 @@ auto CtrCryptor::reset() -> void {
 }
 
 auto CtrCryptor::set_init_vec(uint8_t* init_vec) -> void {
+	UNREFERENCED_PARAMETER(init_vec);
 	return;
 }
 #pragma endregion //CtrCryptor

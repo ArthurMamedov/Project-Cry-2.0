@@ -1,4 +1,4 @@
-#include "factory.hpp"
+#include "Factory.hpp"
 
 auto Factory::_get_algo_core(const char* algorithm, const char* key) -> std::unique_ptr<ICore> {
 	if (!strcmp(algorithm, "aes")) {

@@ -1,10 +1,10 @@
-#pragma once
 #include <iostream>
 #include <functional>
 #include <numeric>
 #include <chrono>
 #include "FileCryptor.hpp"
 #include "Factory.hpp"
+#include <vector>
 
 #define TAKE_TIME(func, arg, res) \
 	auto start = std::chrono::high_resolution_clock::now(); \
@@ -12,14 +12,8 @@
 	auto finish = std::chrono::high_resolution_clock::now(); \
 	res = (std::chrono::duration_cast<std::chrono::milliseconds>(finish - start)).count();
 
-void test_foo(uint8_t* block, const uint8_t* const_block) {
-	block[0] = const_block[1];
-	block[2] = const_block[0];
-}
-
 int main(int argc, char** argv) {
 	//cry [encrypt/decrypt/help/enc/dec] [filepath1 filepath2 ...] [aes/gost/blowfish] [ecb/cbc/cfb/ofb/ctr] [key]
-
 	if (argc < 6 && 0 != strcmp(argv[1], "help")) {
 		std::cerr << "Not enought arguments." << std::endl;
 		return -1;

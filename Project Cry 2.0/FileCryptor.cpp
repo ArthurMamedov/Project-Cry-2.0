@@ -20,7 +20,7 @@ void FileCryptor::set_crypting_algorithm(std::unique_ptr<ICryptor>&& cryptor) no
 }
 
 void FileCryptor::read_flag(std::ifstream& r) {
-	uint8_t flag[33];
+	uint8_t flag[33] = {'\0'};
 	uint8_t check[33] = "testmessagetestmessagetestmessag";
 	auto block_size = crypting_algorithm->get_block_length();
 	check[block_size - 1] = '\0';
@@ -49,15 +49,15 @@ void FileCryptor::encrypt_file(const std::string& path_to_file) {
 	auto block_length = crypting_algorithm->get_block_length();
 	write_flag(writer);
 
-	uint8_t block[32];
+	uint8_t block[32] = { '\0' };
 	bool end_file = false;
-	short count;
+	unsigned short count;
 
 	while (!end_file) {
 		reader.read((char*)block, block_length);
 		count = static_cast<short>(reader.gcount());
 
-		if (count < block_length) {
+		if (static_cast<size_t>(count) < block_length) {
 			for (size_t i = count; i < block_length; i++)
 				block[i] = 0;
 			end_file = true;
@@ -95,13 +95,13 @@ void FileCryptor::decrypt_file(const std::string& path_to_file) {
 		read_flag(reader);
 	} catch (const std::exception& ex) {
 		reader.close();
-		throw ex;
+		throw;
 	}
 
 	std::ofstream writer(path_to_file.substr(0, path_to_file.size() - 4), std::ofstream::binary | std::ofstream::out);
 	auto block_length = crypting_algorithm->get_block_length();
-	uint8_t check[2];
-	uint8_t block[32];
+	uint8_t check[2] = { '\0' };
+	uint8_t block[32] = { '\0' };
 
 	while (true) {
 		reader.read((char*)block, block_length);

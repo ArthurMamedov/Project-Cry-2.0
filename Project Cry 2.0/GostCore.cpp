@@ -10,8 +10,8 @@ inline auto GostCore::_64bits_block_to_2_32bit_blocks(const uint8_t block[8], ui
 
 inline auto GostCore::_2_32bits_blocks_to_64_block(uint32_t N1, uint32_t N2, uint8_t block[8]) -> void {
 	for (int c = 3; c >= 0; c--) {
-		block[c + 4] = N1;
-		block[c] = N2;
+		block[c + 4] = static_cast<uint8_t>(N1);
+		block[c] = static_cast<uint8_t>(N2);
 		N1 = N1 >> 8;
 		N2 = N2 >> 8;
 	}
@@ -127,6 +127,7 @@ auto GostCore::set_key(const char* key) -> void {
 }
 
 auto GostCore::set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void {
+	UNREFERENCED_PARAMETER(inv_sbox);
 	for (size_t c = 0; c < 8; c++) {
 		for (size_t p = 0; p < 16; p++) {
 			_sbox[c][p] = sbox[c][p];
