@@ -1,11 +1,12 @@
 #include <stdexcept>
 #include <cstring>
 #include "AesCore.hpp"
+#include "Auxilary.hpp"
 
-#define AES_EXT_KEY_LENGTH	176
-#define AES_BLOCK_LENGTH	16
+using namespace ProjectCry;
+using namespace ProjectCryAuxilary;
 
-inline auto AesCore::_mul(uint8_t first, uint8_t second) -> uint8_t {
+inline uint8_t AesCore::_mul(uint8_t first, uint8_t second) {
 	uint8_t r = 0;
 	for (int c = 7; c >= 0; c--) {
 		r = r << 1;
@@ -36,8 +37,8 @@ inline auto AesCore::_pol_mul(uint8_t f, uint8_t s) -> uint8_t {
 }
 
 inline auto AesCore::_key_extension(const char* key, uint8_t* ext_key) -> void {
-	uint8_t Rcon[258];
-	Rcon[0] = 1; Rcon[257] = Rcon[256] = Rcon[255] = 0;
+	uint8_t Rcon[258]{ 0 };
+	Rcon[0] = 1;
 
 	for (size_t i = 1; i < 255; i++) {
 		Rcon[i] = _pol_mul(2, Rcon[i - 1]);
@@ -63,12 +64,6 @@ inline auto AesCore::_key_extension(const char* key, uint8_t* ext_key) -> void {
 				ext_key[c + p] = ext_key[c - AES_BLOCK_LENGTH + p] ^ ext_key[c - 4 + p];
 			}
 		}
-	}
-}
-
-inline auto AesCore::_xor_blocks(uint8_t* block1, const uint8_t* block2) -> void {
-	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
-		block1[c] ^= block2[c];
 	}
 }
 
@@ -119,7 +114,7 @@ inline auto AesCore::_shift_rows(uint8_t* state) -> void {
 }
 
 inline auto AesCore::_mix_colums(uint8_t* state) -> void {  //a = 3x^3 + 1x^2 + 1x^2 + 2
-	uint8_t new_state[AES_BLOCK_LENGTH]; // 01101001  x^6 + x^5 + x^3 + 1
+	uint8_t new_state[AES_BLOCK_LENGTH]{ 0 }; // 01101001  x^6 + x^5 + x^3 + 1
 	for (size_t i = 0; i < 4; i++) {
 		new_state[i] = _pol_mul(2, state[i]) ^ _pol_mul(3, state[i + 4]) ^ state[i + 8] ^ state[i + 12];
 		new_state[i + 4] = state[i] ^ _pol_mul(2, state[i + 4]) ^ _pol_mul(3, state[i + 8]) ^ state[i + 12];
@@ -142,22 +137,22 @@ inline auto AesCore::_inv_sub_bytes(uint8_t* state) -> void {
 }
 
 inline auto AesCore::_inv_mix_colums(uint8_t* state) -> void {
-	uint8_t new_state[AES_BLOCK_LENGTH];
+	uint8_t new_state[AES_BLOCK_LENGTH]{ 0 };
 	for (size_t i = 0; i < 4; i++) {
-		new_state[i] = _pol_mul(14, state[i]) ^ _pol_mul(11, state[i + 4]) ^ _pol_mul(13, state[i + 8]) ^ _pol_mul(9, state[i + 12]);
-		new_state[i + 4] = _pol_mul(9, state[i]) ^ _pol_mul(14, state[i + 4]) ^ _pol_mul(11, state[i + 8]) ^ _pol_mul(13, state[i + 12]);
-		new_state[i + 8] = _pol_mul(13, state[i]) ^ _pol_mul(9, state[i + 4]) ^ _pol_mul(14, state[i + 8]) ^ _pol_mul(11, state[i + 12]);
-		new_state[i + 12] = _pol_mul(11, state[i]) ^ _pol_mul(13, state[i + 4]) ^ _pol_mul(9, state[i + 8]) ^ _pol_mul(14, state[i + 12]);
+		new_state[i] =      _pol_mul(14, state[i]) ^ _pol_mul(11, state[i + 4]) ^ _pol_mul(13, state[i + 8]) ^ _pol_mul(9,  state[i + 12]);
+		new_state[i + 4] =  _pol_mul(9,  state[i]) ^ _pol_mul(14, state[i + 4]) ^ _pol_mul(11, state[i + 8]) ^ _pol_mul(13, state[i + 12]);
+		new_state[i + 8] =  _pol_mul(13, state[i]) ^ _pol_mul(9,  state[i + 4]) ^ _pol_mul(14, state[i + 8]) ^ _pol_mul(11, state[i + 12]);
+		new_state[i + 12] = _pol_mul(11, state[i]) ^ _pol_mul(13, state[i + 4]) ^ _pol_mul(9,  state[i + 8]) ^ _pol_mul(14, state[i + 12]);
 	}
 	std::memmove(state, new_state, AES_BLOCK_LENGTH);
 }
 
 inline auto AesCore::_inv_shift_rows(uint8_t* state) -> void {
-	_shift(4, state);
-	_shift(4, state);
-	_shift(4, state);
-	_shift(8, state);
-	_shift(8, state);
+	_shift(4,  state);
+	_shift(4,  state);
+	_shift(4,  state);
+	_shift(8,  state);
+	_shift(8,  state);
 	_shift(12, state);
 }
 
@@ -183,29 +178,29 @@ AesCore::AesCore(const AesCore& aesCore) {
 }
 
 inline auto AesCore::cry_round(uint8_t* block) -> void {
-	_xor_blocks(block, _first);
+	xor_blocks(block, _first, AES_BLOCK_LENGTH);
 	for (size_t k = 0; k < 9; k++) {
 		_sub_bytes(block);
 		_shift_rows(block);
 		_mix_colums(block);
-		_xor_blocks(block, _middle[k]);
+		xor_blocks(block, _middle[k], AES_BLOCK_LENGTH);
 	}
 	_sub_bytes(block);
 	_shift_rows(block);
-	_xor_blocks(block, _last);
+	xor_blocks(block, _last, AES_BLOCK_LENGTH);
 }
 
 inline auto AesCore::inv_cry_round(uint8_t* block) -> void {
-	_xor_blocks(block, _last);
+	xor_blocks(block, _last, AES_BLOCK_LENGTH);
 	_inv_shift_rows(block);
 	_inv_sub_bytes(block);
 	for (size_t c = 0; c < 9; c++) {
-		_xor_blocks(block, _middle[9 - c - 1]);
+		xor_blocks(block, _middle[9 - c - 1], AES_BLOCK_LENGTH);
 		_inv_mix_colums(block);
 		_inv_shift_rows(block);
 		_inv_sub_bytes(block);
 	}
-	_xor_blocks(block, _first);
+	xor_blocks(block, _first, AES_BLOCK_LENGTH);
 }
 
 auto AesCore::set_key(const char* key) -> void {
@@ -229,15 +224,13 @@ auto AesCore::get_block_length() -> size_t {
 }
 
 AesCore::~AesCore() {
-	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
-		_first[c] = 0;
-		_last[c] = 0;
-		for (size_t p = 0; p < AES_BLOCK_LENGTH && c < 9; p++) {
-			_middle[c][p] = 0;
-		}
-		for (size_t p = 0; p < AES_BLOCK_LENGTH; p++) {
-			_sbox[c][p] = 0;
-			_inv_sbox[c][p] = 0;
-		}
+	std::memset(_last, 0, AES_BLOCK_LENGTH);
+	std::memset(_first, 0, AES_BLOCK_LENGTH);
+	for (size_t c = 0; c < 9; c++) 		{
+		std::memset(_middle[c], 0, AES_BLOCK_LENGTH);
+	}
+	for (size_t c = 0; c < 16; c++) 		{
+		std::memset(_sbox[c], 0, AES_BLOCK_LENGTH);
+		std::memset(_inv_sbox[c], 0, AES_BLOCK_LENGTH);
 	}
 }

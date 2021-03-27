@@ -1,6 +1,8 @@
 #include <stdexcept>
 #include "BlowfishCore.hpp"
 
+using namespace ProjectCry;
+
 inline auto BlowfishCore::_split_block(const uint8_t* block, uint32_t& f, uint32_t& s) -> void {
 	for (int c = 0; c < 4; c++) {
 		f = (f << 8) | block[c];
@@ -23,7 +25,7 @@ inline auto BlowfishCore::_xor_p_block_with_key(const char* key, const size_t ke
 }
 
 inline auto BlowfishCore::_key_extansion(const char* key) -> void {
-	size_t key_size = strlen(key);
+	size_t key_size = std::strlen(key);
 
 	if (key_size > 56 || key_size < 4) {
 		throw std::runtime_error("Key's length must be bigger than 4 and less than 56 bytes.");
@@ -63,7 +65,7 @@ inline auto BlowfishCore::_sbox_encryption() -> void {
 
 inline auto BlowfishCore::_round(uint32_t& block1, uint32_t& block2, const uint32_t& r_key) -> void {
 	const auto res = block1 ^ r_key;
-	const auto p = reinterpret_cast<const uint8_t*>(&res);  //(uint8_t*)(&res);
+	const auto p = reinterpret_cast<const uint8_t*>(&res);
 	uint32_t result = _sbox[0][p[0]];
 	result += _sbox[1][p[1]];
 	result ^= _sbox[2][p[2]];
@@ -112,22 +114,16 @@ BlowfishCore::BlowfishCore(const char* key) {
 }
 
 BlowfishCore::BlowfishCore(const BlowfishCore& blowfishCore) {
-	for (size_t c = 0; c < 18; c++) {
-		_p_block[c] = blowfishCore._p_block[c];
-	}
+	std::memcpy(_p_block, blowfishCore._p_block, 18);
 	for (size_t c = 0; c < 4; c++) {
-		for (size_t p = 0; p < 256; p++) {
-			_sbox[c][p] = blowfishCore._sbox[c][p];
-		}
+		std::memcpy(_sbox[c], blowfishCore._sbox[c], 256);
 	}
 }
 
 auto BlowfishCore::set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void {
 	UNREFERENCED_PARAMETER(inv_sbox); //There is no inv_sbox in Blowfish algorithm, so we don't use it.
 	for (size_t c = 0; c < 4; c++) {
-		for (size_t p = 0; p < 256; p++) {
-			_sbox[c][p] = sbox[c][p];
-		}
+		std::memcpy(_sbox[c], sbox[c], 256);
 	}
 }
 

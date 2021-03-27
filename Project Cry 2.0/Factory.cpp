@@ -1,5 +1,7 @@
 #include "Factory.hpp"
 
+using namespace ProjectCry;
+
 auto Factory::_get_algo_core(const char* algorithm, const char* key) -> std::unique_ptr<ICore> {
 	if (!strcmp(algorithm, "aes")) {
 		return std::make_unique<AesCore>(key);

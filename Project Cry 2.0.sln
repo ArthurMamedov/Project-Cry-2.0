@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project Cry 2.0", "Project Cry 2.0\Project Cry 2.0.vcxproj", "{2FD54C7A-F4C0-46AB-B8C1-A5E26E9E2665}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectCryLib", "ProjectCryLib\ProjectCryLib.vcxproj", "{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{2FD54C7A-F4C0-46AB-B8C1-A5E26E9E2665}.Release|x64.Build.0 = Release|x64
 		{2FD54C7A-F4C0-46AB-B8C1-A5E26E9E2665}.Release|x86.ActiveCfg = Release|Win32
 		{2FD54C7A-F4C0-46AB-B8C1-A5E26E9E2665}.Release|x86.Build.0 = Release|Win32
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Debug|x64.ActiveCfg = Debug|x64
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Debug|x64.Build.0 = Debug|x64
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Debug|x86.ActiveCfg = Debug|Win32
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Debug|x86.Build.0 = Debug|Win32
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Release|x64.ActiveCfg = Release|x64
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Release|x64.Build.0 = Release|x64
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Release|x86.ActiveCfg = Release|Win32
+		{BB2433B8-C563-4F66-9711-4D5FA4E25EF0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 	char* algorithm = argv[argc - 3];
 
 	try {
-		std::unique_ptr<ICryptor> cryptor = Factory::make_algorithm(algorithm, emode, key);
+		std::unique_ptr<ProjectCry::ICryptor> cryptor = Factory::make_algorithm(algorithm, emode, key);
 		FileCryptor file(std::move(cryptor));
 		for (size_t c = 2; c < static_cast<size_t>(argc) - 3; c++) {
 			try {

@@ -2,6 +2,8 @@
 #include <fstream>
 #include "FileCryptor.hpp"
 
+using namespace ProjectCry;
+
 FileCryptor::FileCryptor() {
 	this->crypting_algorithm = nullptr;
 }

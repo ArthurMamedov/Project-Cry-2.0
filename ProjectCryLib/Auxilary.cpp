@@ -1,4 +1,6 @@
-#include "Counter.hpp"
+#include "Auxilary.hpp"
+
+using namespace ProjectCryAuxilary;
 
 Counter::Counter() {
 	_data[0] = 0;
@@ -48,4 +50,14 @@ Counter& Counter::operator+=(unsigned long long num) {
 
 auto Counter::null() -> void {
 	_data[0] = _data[1] = 0;
+}
+
+int ProjectCryAuxilary::index(int row, int col, int N) {
+	return col + row * N;
+}
+
+void ProjectCryAuxilary::xor_blocks(uint8_t* block1, const uint8_t* block2, const int size) {
+	for (size_t c = 0; c < size; c++) {
+		block1[c] ^= block2[c];
+	}
 }
