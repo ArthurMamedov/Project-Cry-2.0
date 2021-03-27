@@ -3,6 +3,7 @@
 #include <cstring>
 #include <climits>
 #include "ICryptor.hpp"
+#include "Counter.hpp"
 
 class EcbCryptor final : public ICryptor {
 public:
@@ -64,41 +65,8 @@ public:
 
 class CtrCryptor final : public ICryptor {
 private:
-	class uint128_t final {
-	private:
-		uint64_t _data[2];
-	public:
-		uint128_t() {
-			_data[1] = 0;
-			_data[0] = 0;
-		}
-		uint128_t operator++() {
-			if (_data[1] == ULLONG_MAX) {
-				_data[0] += 1;
-			}
-			_data[1] += 1;
-			return *this;
-		}
-		uint128_t(const uint128_t& uint128) {
-			std::memcpy(reinterpret_cast<void*>(_data),
-						reinterpret_cast<const void*>(uint128._data),
-						16);
-		}
-		uint128_t& operator =(const uint128_t& uint128) {
-			std::memcpy(reinterpret_cast<void*>(_data),
-						reinterpret_cast<const void*>(uint128._data),
-						16);
-			return *this;
-		}
-		operator uint8_t* () {
-			return reinterpret_cast<uint8_t*>(_data);
-		}
-		void null() {
-			_data[0] = 0;
-			_data[1] = 0;
-		}
-	};
-	uint128_t _counter;
+	Counter _counter;
+
 public:
 	CtrCryptor(std::unique_ptr<ICore>&& algo);
 	CtrCryptor(CtrCryptor&& ctrCryptor) noexcept;
