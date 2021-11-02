@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
 	//cry [encrypt/decrypt/help/enc/dec] [filepath1 filepath2 ...] [aes/gost/blowfish] [ecb/cbc/cfb/ofb/ctr] [key]
 	if (argc < 6 && 0 != strcmp(argv[1], "help")) {
 		std::cerr << "Not enought arguments." << std::endl;
-		return -1;
+		return 1;
 	}
 	else if (argc < 6 && 0 == strcmp(argv[1], "help"))
 	{
@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 			"\t- encryption key (for example, '1234567890abcdef')\n"
 			"Example: Cry encrypt file.txt aes cbc 0123456789abcdef\n";
 		std::cout << message << std::endl;
-		return 0;
+		return 1;
 	}
 
 	char* mode = argv[1];
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 		}
 	} catch (const std::exception& ex) {
 		std::cerr << ex.what() << std::endl;
-		return -1;
+		return 1;
 	}
 
 	return 0;

@@ -6,12 +6,12 @@
 class ICryptor {
 protected:
 	std::unique_ptr<ICore> _algo;
-	auto xor_blocks(uint8_t* block1, const uint8_t* block2)									-> void;
+	auto xor_blocks(uint8_t* block1, const uint8_t* block2);
 public:
-	virtual auto encrypt(uint8_t* block)													-> void = 0;
-	virtual auto decrypt(uint8_t* block)													-> void = 0;
-	virtual auto get_block_length()															-> size_t;
-	virtual auto reset()																	-> void = 0;
+	virtual void encrypt(uint8_t* block) = 0;
+	virtual void decrypt(uint8_t* block) = 0;
+	virtual size_t get_block_length();
+	virtual void reset() = 0;
 
 	virtual ~ICryptor() = default;
 };
