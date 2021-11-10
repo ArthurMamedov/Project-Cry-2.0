@@ -228,6 +228,10 @@ auto AesCore::get_block_length() -> size_t {
 	return AES_BLOCK_LENGTH;
 }
 
+size_t AesCore::get_key_length() {
+	return 16;
+}
+
 AesCore::~AesCore() {
 	for (size_t c = 0; c < AES_BLOCK_LENGTH; c++) {
 		_first[c] = 0;

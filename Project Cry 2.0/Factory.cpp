@@ -1,17 +1,24 @@
+#include <sstream>
 #include "Factory.hpp"
+#include "PasswordEqualizer.hpp"
 
 auto Factory::_get_algo_core(const char* algorithm, const char* key) -> std::unique_ptr<ICore> {
+	PasswordEqualizer pe;
+	std::unique_ptr<ICore> result;
 	if (!strcmp(algorithm, "aes")) {
-		return std::make_unique<AesCore>(key);
+		result = std::make_unique<AesCore>();
 	} else if (!strcmp(algorithm, "gost") || !strcmp(algorithm, "gost28147-89")) {
-		return std::make_unique<GostCore>(key);
+		result = std::make_unique<GostCore>();
 	} else if (!strcmp(algorithm, "blowfish")) {
-		return std::make_unique<BlowfishCore>(key);
+		result = std::make_unique<BlowfishCore>();
 	} else if (!strcmp(algorithm, "anubis")) {
-		return std::make_unique<AnubisCore>(key);
+		result = std::make_unique<AnubisCore>();
 	} else {
 		throw std::runtime_error(std::string("Unknown algorithm: ") + algorithm);
 	}
+	std::string equalized = std::move(pe.normalize_key_to_appropriate_length(key, result->get_key_length()));
+	result->set_key(equalized.c_str());
+	return std::move(result);
 }
 
 auto Factory::_get_cryptor(const char* emode, std::unique_ptr<ICore>&& core) -> std::unique_ptr<ICryptor> {
@@ -26,7 +33,9 @@ auto Factory::_get_cryptor(const char* emode, std::unique_ptr<ICore>&& core) -> 
 	} else if (!strcmp(emode, "ctr")) {
 		return std::make_unique<CtrCryptor>(std::move(core));
 	} else {
-		throw std::runtime_error(std::string("Unknown encryption mode: ") + emode);
+		std::stringstream ss;
+		ss << "Unknown encryptino mode: " << emode;
+		throw std::runtime_error(ss.str());
 	}
 }
 

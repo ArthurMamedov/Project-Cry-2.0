@@ -25,6 +25,7 @@ private:
 	inline auto _64bits_block_to_2_32bit_blocks(const uint8_t block[8], uint32_t& N1, uint32_t& N2) -> void;
 	
 public:
+	GostCore() = default;
 	GostCore(const char* key);
 	GostCore(const GostCore& gost);
 
@@ -33,4 +34,5 @@ public:
 	auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void override;
 	auto get_block_length() -> size_t override;
 	auto set_key(const char* key) -> void override;
+	size_t get_key_length() override;
 };

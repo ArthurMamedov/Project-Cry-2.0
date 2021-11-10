@@ -126,6 +126,10 @@ auto GostCore::set_key(const char* key) -> void {
 	_split_256bits_to_32bits(key);
 }
 
+size_t GostCore::get_key_length() {
+	return 32;
+}
+
 auto GostCore::set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void {
 	UNREFERENCED_PARAMETER(inv_sbox);
 	for (size_t c = 0; c < 8; c++) {

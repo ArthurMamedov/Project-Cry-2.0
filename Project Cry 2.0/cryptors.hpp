@@ -25,10 +25,10 @@ public:
 	CbcCryptor(std::unique_ptr<ICore>&& algo);
 	CbcCryptor(CbcCryptor&& CbcCryptor) noexcept;
 
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-			auto set_init_vec(uint8_t* init_vec)					-> void;
+	virtual void encrypt(uint8_t* block) override;
+	virtual void decrypt(uint8_t* block) override;
+	virtual void reset() override;
+	        void set_init_vec(uint8_t* init_vec);
 	
 	~CbcCryptor() = default;
 };
@@ -41,10 +41,10 @@ public:
 	CfbCryptor(std::unique_ptr<ICore>&& algo);
 	CfbCryptor(CfbCryptor&& CfbCryptor) noexcept;
 	
-	virtual auto encrypt(uint8_t* block)							-> void override;
-	virtual auto decrypt(uint8_t* block)							-> void override;
-	virtual auto reset()											-> void override;
-			auto set_init_vec(uint8_t* init_vec)					-> void;
+	virtual void encrypt(uint8_t* block) override;
+	virtual void decrypt(uint8_t* block) override;
+	virtual void reset() override;
+			void set_init_vec(uint8_t* init_vec);
 
 	~CfbCryptor() = default;
 };

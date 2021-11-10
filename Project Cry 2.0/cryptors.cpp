@@ -39,7 +39,7 @@ CbcCryptor::CbcCryptor(CbcCryptor&& CbcCryptor) noexcept {
 				16);
 }
 
-auto CbcCryptor::encrypt(uint8_t* block) -> void {
+void CbcCryptor::encrypt(uint8_t* block) {
 	xor_blocks(block, _init_vec);
 	_algo->cry_round(block);
 	std::memcpy(reinterpret_cast<void*>(_init_vec),
@@ -90,7 +90,7 @@ CfbCryptor::CfbCryptor(CfbCryptor&& CfbCryptor) noexcept {
 				16);
 }
 
-auto CfbCryptor::encrypt(uint8_t* block) -> void {
+void CfbCryptor::encrypt(uint8_t* block) {
 	_algo->cry_round(_init_vec);
 	xor_blocks(block, _init_vec);
 	std::memcpy(reinterpret_cast<void*>(_init_vec),
@@ -98,7 +98,7 @@ auto CfbCryptor::encrypt(uint8_t* block) -> void {
 				16);
 }
 
-auto CfbCryptor::decrypt(uint8_t* block) -> void {
+void CfbCryptor::decrypt(uint8_t* block) {
 	uint8_t buf[16];
 	memcpy(buf, block, 16);
 	_algo->cry_round(_init_vec);
@@ -106,13 +106,13 @@ auto CfbCryptor::decrypt(uint8_t* block) -> void {
 	memcpy(_init_vec, buf, 16);
 }
 
-auto CfbCryptor::reset() -> void {
+void CfbCryptor::reset() {
 	std::memcpy(reinterpret_cast<void*>(_init_vec),
 				reinterpret_cast<const void*>(_save_init_vec),
 				16);
 }
 
-auto CfbCryptor::set_init_vec(uint8_t* init_vec) -> void {
+void CfbCryptor::set_init_vec(uint8_t* init_vec) {
 	std::memcpy(reinterpret_cast<void*>(_save_init_vec),
 				reinterpret_cast<const void*>(init_vec),
 				16);

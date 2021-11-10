@@ -138,3 +138,7 @@ auto BlowfishCore::set_key(const char* key) -> void {
 auto BlowfishCore::get_block_length() -> size_t {
     return 8u;
 }
+
+size_t BlowfishCore::get_key_length() {
+	return 56;
+}

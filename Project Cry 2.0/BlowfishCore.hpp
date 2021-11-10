@@ -188,14 +188,16 @@ private:
     inline auto _join_32b_block(const uint32_t& right, const uint32_t& left, uint8_t* block)    -> void;
 
 public:
+    BlowfishCore() = default;
     BlowfishCore(const char* key);
     BlowfishCore(const BlowfishCore& blowfishCore);
 
-    virtual auto cry_round(uint8_t* block)                                                      -> void override;
-    virtual auto inv_cry_round(uint8_t* block)                                                  -> void override;
-    virtual auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox)        -> void override;
-    virtual auto set_key(const char* key)                                                       -> void override;
-    virtual auto get_block_length()                                                             -> size_t override;
+    auto cry_round(uint8_t* block)                                                      -> void override;
+    auto inv_cry_round(uint8_t* block)                                                  -> void override;
+    auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox)        -> void override;
+    auto set_key(const char* key)                                                       -> void override;
+    auto get_block_length()                                                             -> size_t override;
+    size_t get_key_length() override;
 
     ~BlowfishCore() = default;
 };

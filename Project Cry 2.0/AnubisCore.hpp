@@ -58,12 +58,14 @@ private:
 	inline auto _set_key(const char* key) -> void;
 
 public:
+	AnubisCore() = default;
 	AnubisCore(const char* key);
 	AnubisCore(const AnubisCore& anubis_core);
 
-	virtual auto cry_round(uint8_t* block) -> void override;
-	virtual auto inv_cry_round(uint8_t* block) -> void override;
-	virtual auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void override;
-	virtual auto set_key(const char* key) -> void override;
-	virtual auto get_block_length() -> size_t override;
+	void cry_round(uint8_t* block) override;
+	void inv_cry_round(uint8_t* block) override;
+	void set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) override;
+	void set_key(const char* key) override;
+	size_t get_block_length() override;
+	size_t get_key_length() override;
 };

@@ -5,6 +5,7 @@
 #include "FileCryptor.hpp"
 #include "Factory.hpp"
 #include <vector>
+#include "PasswordEqualizer.hpp"
 
 #define TAKE_TIME(func, arg, res) \
 	auto start = std::chrono::high_resolution_clock::now(); \
@@ -13,8 +14,18 @@
 	res = (std::chrono::duration_cast<std::chrono::milliseconds>(finish - start)).count();
 
 int main(int argc, char** argv) {
+	//PasswordEqualizer pe;
+	//char f1[] = "1234";
+	//std::string t1 = std::move(pe.normalize_key_to_appropriate_length(f1, 9));
+	//char f2[] = "12345678";
+	//auto t2 = std::move(pe.normalize_key_to_appropriate_length(f2, 3));
+	//char f3[] = "12345678";
+	//auto t3 = std::move(pe.normalize_key_to_appropriate_length(f2, 6));
+
+	//return 0;
+
 	//cry [encrypt/decrypt/help/enc/dec] [filepath1 filepath2 ...] [aes/gost/blowfish] [ecb/cbc/cfb/ofb/ctr] [key]
-	if (argc < 6 && 0 != strcmp(argv[1], "help")) {
+	if (argc < 2 || (argc < 6 && 0 != strcmp(argv[1], "help"))) {
 		std::cerr << "Not enought arguments." << std::endl;
 		return 1;
 	}
@@ -48,6 +59,7 @@ int main(int argc, char** argv) {
 
 	try {
 		std::unique_ptr<ICryptor> cryptor = Factory::make_algorithm(algorithm, emode, key);
+
 		FileCryptor file(std::move(cryptor));
 		for (size_t c = 2; c < static_cast<size_t>(argc) - 3; c++) {
 			try {
@@ -57,12 +69,10 @@ int main(int argc, char** argv) {
 				} else if (!strcmp(mode, "decrypt")) {
 					TAKE_TIME(file.decrypt_file, argv[c], time);
 				} else {
-					auto message = std::string("Unknown mode: ") + mode;
-					std::cerr << message << std::endl;
+					std::cerr << "Unknown mode: " << mode << std::endl;
 					return -1;
 				}
-				std::cout << "File " << argv[c] << " succesfully " << mode << "ed!" << std::endl;
-				std::cout << "Time spent: " << time << std::endl;
+				std::cout << "File " << argv[c] << " succesfully " << mode << "ed! Time spent: " << time << "ms"  << std::endl;
 			} catch (const std::exception& ex) {
 				std::cerr << ex.what() << std::endl;
 			}

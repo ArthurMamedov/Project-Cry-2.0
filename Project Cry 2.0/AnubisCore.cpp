@@ -153,3 +153,7 @@ auto AnubisCore::set_key(const char* key) -> void {
 auto AnubisCore::get_block_length() -> size_t {
 	return _block_length;
 }
+
+size_t AnubisCore::get_key_length() {
+	return 40;
+}

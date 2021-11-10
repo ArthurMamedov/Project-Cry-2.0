@@ -66,6 +66,7 @@ protected:
 	inline auto _inv_shift_rows(uint8_t* state)										-> void;
 
 public:
+	AesCore() = default;
 	AesCore(const char* key);
 	AesCore(const AesCore& aesCore);
 
@@ -74,5 +75,6 @@ public:
 	auto set_key(const char* key)													-> void override;
 	auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox)	-> void override;
 	auto get_block_length()															-> size_t override;
+	size_t get_key_length() override;
 	~AesCore();
 };
