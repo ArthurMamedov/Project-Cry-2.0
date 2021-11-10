@@ -81,7 +81,7 @@ inline auto BlowfishCore::_join_32b_block(const uint32_t& right, const uint32_t&
 	}
 }
 
-auto BlowfishCore::cry_round(uint8_t* block) -> void {
+auto BlowfishCore::encrypt_block(uint8_t* block) -> void {
 	uint32_t right, left;
 
 	_split_block(block, right, left);
@@ -96,7 +96,7 @@ auto BlowfishCore::cry_round(uint8_t* block) -> void {
 	_join_32b_block(right, left, block);
 }
 
-auto BlowfishCore::inv_cry_round(uint8_t* block) -> void {
+auto BlowfishCore::decrypt_block(uint8_t* block) -> void {
 	uint32_t right, left;
 	_split_block(block, right, left);
 	right ^= _p_block[17];

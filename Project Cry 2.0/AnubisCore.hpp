@@ -62,8 +62,8 @@ public:
 	AnubisCore(const char* key);
 	AnubisCore(const AnubisCore& anubis_core);
 
-	void cry_round(uint8_t* block) override;
-	void inv_cry_round(uint8_t* block) override;
+	void encrypt_block(uint8_t* block) override;
+	void decrypt_block(uint8_t* block) override;
 	void set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) override;
 	void set_key(const char* key) override;
 	size_t get_block_length() override;

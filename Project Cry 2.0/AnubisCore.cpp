@@ -111,7 +111,7 @@ AnubisCore::AnubisCore(const AnubisCore& anubis_core) {
 	}
 }
 
-auto AnubisCore::cry_round(uint8_t* block) -> void {
+auto AnubisCore::encrypt_block(uint8_t* block) -> void {
 	_xor_blocks(block, _ext_key.get());
 	for (size_t c = 0; c < _round_number - 1; c++) {
 		_substitution_table(block);
@@ -124,7 +124,7 @@ auto AnubisCore::cry_round(uint8_t* block) -> void {
 	_xor_blocks(block, &_ext_key[(_round_number - 1) * _block_length]);
 }
 
-auto AnubisCore::inv_cry_round(uint8_t* block) -> void {
+auto AnubisCore::decrypt_block(uint8_t* block) -> void {
 	_xor_blocks(block, &_ext_key[(_round_number - 1) * _block_length]);
 	_inv_columns(block);
 	_substitution_table(block);

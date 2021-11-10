@@ -29,8 +29,8 @@ public:
 	GostCore(const char* key);
 	GostCore(const GostCore& gost);
 
-	auto cry_round(uint8_t* block) -> void override;
-	auto inv_cry_round(uint8_t* block) -> void override;
+	auto encrypt_block(uint8_t* block) -> void override;
+	auto decrypt_block(uint8_t* block) -> void override;
 	auto set_substitution_tables(const uint8_t** sbox, const uint8_t** inv_sbox) -> void override;
 	auto get_block_length() -> size_t override;
 	auto set_key(const char* key) -> void override;

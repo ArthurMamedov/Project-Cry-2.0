@@ -182,7 +182,7 @@ AesCore::AesCore(const AesCore& aesCore) {
 	}
 }
 
-inline auto AesCore::cry_round(uint8_t* block) -> void {
+inline auto AesCore::encrypt_block(uint8_t* block) -> void {
 	_xor_blocks(block, _first);
 	for (size_t k = 0; k < 9; k++) {
 		_sub_bytes(block);
@@ -195,7 +195,7 @@ inline auto AesCore::cry_round(uint8_t* block) -> void {
 	_xor_blocks(block, _last);
 }
 
-inline auto AesCore::inv_cry_round(uint8_t* block) -> void {
+inline auto AesCore::decrypt_block(uint8_t* block) -> void {
 	_xor_blocks(block, _last);
 	_inv_shift_rows(block);
 	_inv_sub_bytes(block);

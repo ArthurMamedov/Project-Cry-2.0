@@ -17,7 +17,7 @@ inline auto GostCore::_2_32bits_blocks_to_64_block(uint32_t N1, uint32_t N2, uin
 	}
 }
 
-auto GostCore::cry_round(uint8_t* block) -> void {
+auto GostCore::encrypt_block(uint8_t* block) -> void {
 	uint32_t N1, N2;
 
 	_64bits_block_to_2_32bit_blocks(block, N1, N2);
@@ -33,7 +33,7 @@ auto GostCore::cry_round(uint8_t* block) -> void {
 	_2_32bits_blocks_to_64_block(N1, N2, block);
 }
 
-auto GostCore::inv_cry_round(uint8_t* block) -> void {
+auto GostCore::decrypt_block(uint8_t* block) -> void {
 	uint32_t N1, N2;
 
 	_64bits_block_to_2_32bit_blocks(block, N1, N2);

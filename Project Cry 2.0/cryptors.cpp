@@ -12,11 +12,11 @@ EcbCryptor::EcbCryptor(EcbCryptor&& aesEcbCryptor) noexcept {
 }
 
 auto EcbCryptor::encrypt(uint8_t* block) -> void {
-	_algo->cry_round(block);
+	_algo->encrypt_block(block);
 }
 
 auto EcbCryptor::decrypt(uint8_t* block) -> void {
-	_algo->inv_cry_round(block);
+	_algo->decrypt_block(block);
 }
 
 auto EcbCryptor::reset() -> void {
@@ -41,7 +41,7 @@ CbcCryptor::CbcCryptor(CbcCryptor&& CbcCryptor) noexcept {
 
 void CbcCryptor::encrypt(uint8_t* block) {
 	xor_blocks(block, _init_vec);
-	_algo->cry_round(block);
+	_algo->encrypt_block(block);
 	std::memcpy(reinterpret_cast<void*>(_init_vec),
 				reinterpret_cast<const void*>(block),
 				16);
@@ -52,7 +52,7 @@ auto CbcCryptor::decrypt(uint8_t* block) -> void {
 	std::memcpy(reinterpret_cast<void*>(buf),
 				reinterpret_cast<const void*>(block),
 				16);
-	_algo->inv_cry_round(block);
+	_algo->decrypt_block(block);
 	xor_blocks(block, _init_vec);
 	std::memcpy(reinterpret_cast<void*>(_init_vec),
 				reinterpret_cast<const void*>(buf),
@@ -91,7 +91,7 @@ CfbCryptor::CfbCryptor(CfbCryptor&& CfbCryptor) noexcept {
 }
 
 void CfbCryptor::encrypt(uint8_t* block) {
-	_algo->cry_round(_init_vec);
+	_algo->encrypt_block(_init_vec);
 	xor_blocks(block, _init_vec);
 	std::memcpy(reinterpret_cast<void*>(_init_vec),
 				reinterpret_cast<const void*>(block),
@@ -101,7 +101,7 @@ void CfbCryptor::encrypt(uint8_t* block) {
 void CfbCryptor::decrypt(uint8_t* block) {
 	uint8_t buf[16];
 	memcpy(buf, block, 16);
-	_algo->cry_round(_init_vec);
+	_algo->encrypt_block(_init_vec);
 	xor_blocks(block, _init_vec);
 	memcpy(_init_vec, buf, 16);
 }
@@ -138,12 +138,12 @@ OfbCryptor::OfbCryptor(OfbCryptor&& ofbCryptor) noexcept {
 }
 
 auto OfbCryptor::encrypt(uint8_t* block) -> void {
-	_algo->cry_round(_init_vec);
+	_algo->encrypt_block(_init_vec);
 	xor_blocks(block, _init_vec);
 }
 
 auto OfbCryptor::decrypt(uint8_t* block) -> void {
-	_algo->cry_round(_init_vec);
+	_algo->encrypt_block(_init_vec);
 	xor_blocks(block, _init_vec);
 }
 
@@ -180,7 +180,7 @@ auto CtrCryptor::encrypt(uint8_t* block) -> void {
 	std::memcpy(reinterpret_cast<void*>(round_c),
 				reinterpret_cast<const void*>(static_cast<uint8_t*>(_counter)),
 				16);
-	_algo->cry_round(round_c);
+	_algo->encrypt_block(round_c);
 	xor_blocks(block, round_c);
 	++_counter;
 }
@@ -190,7 +190,7 @@ auto CtrCryptor::decrypt(uint8_t* block) -> void {
 	std::memcpy(reinterpret_cast<void*>(round_c),
 				reinterpret_cast<const void*>(static_cast<uint8_t*>(_counter)),
 				16);
-	_algo->cry_round(round_c);
+	_algo->encrypt_block(round_c);
 	xor_blocks(block, round_c);
 	++_counter;
 }
